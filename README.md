@@ -29,11 +29,19 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy on Render
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Log in to [Render](https://render.com/) and Create a New Web Service
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Go to Render Dashboard → New + → Web Service
+2. Select your GitHub repo: auto-wright
+3. Set Configs:
+- Environment | Docker
+- Dockerfile path | Dockerfile (default)
+- Branch | master (or whichever you're using)
+- Root Directory | leave empty unless you used a subdir
+- Name | auto-wright
+- Region | Closest to you
 
 ## Docker
 
