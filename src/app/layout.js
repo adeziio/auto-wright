@@ -1,16 +1,16 @@
-import React from 'react';
-import { Roboto } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '../theme/ThemeProvider';
 
-const roboto = Roboto({ weight: '400', subsets: ['latin'] });
+export const metadata = {
+  title: 'Auto-Wright',
+  description: 'Automated Testing Dashboard',
+};
 
-export default function Layout({ children }) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head>
-        <title>Auto-Wright Dashboard</title>
-      </head>
-      <body className={roboto.className}>
-        {children} {/* The children are the actual page content */}
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
