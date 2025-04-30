@@ -47,6 +47,7 @@ export default function TestRunner({ onResults, onStart }) {
         onClick={handleMenuOpen}
         variant="contained"
         sx={{
+          width: "100%", maxWidth: 250,
           backgroundColor: 'primary.main',
           '&:hover': { backgroundColor: 'primary.dark' },
         }}

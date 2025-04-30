@@ -7,7 +7,7 @@ export const getDesignTokens = (mode) => ({
       ? {
         // Light mode palette
         background: {
-          default: '#f5f5f5', // Light gray background
+          default: '#F8F9FB', // Light gray background
           paper: '#ffffff',  // White for cards and paper components
         },
         text: {
