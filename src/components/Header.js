@@ -50,7 +50,7 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
       <Toolbar>
         <Grid container alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
           {/* Title */}
-          <Grid item>
+          <Grid>
             <Box
               sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
               onClick={handleLogoClick} // Add onClick to refresh the page
@@ -63,7 +63,7 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
           </Grid>
 
           {/* Right-Side Components */}
-          <Grid item>
+          <Grid>
             {isMobile ? (
               <>
                 {/* Mobile Menu Button */}
