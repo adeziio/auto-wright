@@ -16,17 +16,27 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 
 export default function Statistics({ groupedFilteredResults }) {
     // Check if there is any data
-    const hasData = groupedFilteredResults && Object.keys(groupedFilteredResults).length > 0;
+    const hasData = groupedFilteredResults && groupedFilteredResults.length > 0;
 
     // If no data, return null (render nothing)
     if (!hasData) {
-        return null;
+        return <Typography>No statistics to display.</Typography>;
     }
 
+    // Flatten results for easier processing
+    const flattenedResults = groupedFilteredResults.flatMap((run) => run.results);
+
+    // Group results by type
+    const groupedByType = flattenedResults.reduce((acc, result) => {
+        acc[result.type] = acc[result.type] || [];
+        acc[result.type].push(result);
+        return acc;
+    }, {});
+
     // Prepare data for the charts
-    const types = Object.keys(groupedFilteredResults);
+    const types = Object.keys(groupedByType);
     const passFailCounts = types.map((type) => {
-        const results = groupedFilteredResults[type];
+        const results = groupedByType[type];
         const passCount = results.filter((result) => result.pass).length;
         const failCount = results.length - passCount;
         return { type, pass: passCount, fail: failCount };

@@ -1,81 +1,158 @@
 import React from 'react';
-import { Box, Typography, List, Accordion, AccordionSummary, AccordionDetails, ListItem, ListItemText, Card, CardContent } from '@mui/material';
+import { Accordion, AccordionSummary, AccordionDetails, Typography, List, ListItem, ListItemText } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'; // Pass icon
+import ErrorIcon from '@mui/icons-material/Error'; // Fail icon
 
-export default function Results({ groupedFilteredResults }) {
-    const hasResults = Object.keys(groupedFilteredResults).length > 0;
-
-    if (!hasResults) {
-        return null; // Don't render anything if there are no results
+export default function Results({ groupedResultsByTimestamp }) {
+    if (!groupedResultsByTimestamp || groupedResultsByTimestamp.length === 0) {
+        return <Typography>No results to display.</Typography>;
     }
+
+    // Sort the results by latest timestamp first
+    const sortedResults = [...groupedResultsByTimestamp].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
     return (
         <>
             <Typography variant="h5" sx={{ mb: 4, textAlign: 'center' }}>
                 Results Log
             </Typography>
-            {Object.entries(groupedFilteredResults).map(([type, typeResults], typeIdx) => (
-                <Box key={typeIdx} sx={{ mt: 4 }}>
-                    <Typography variant="h5" sx={{ mb: 2, textAlign: 'left' }}>
-                        {type === 'UI' ? 'UI Tests' : 'API Tests'}
-                    </Typography>
-                    <List>
-                        {Object.entries(
-                            typeResults.reduce((acc, result) => {
-                                acc[result.test] = acc[result.test] || [];
-                                acc[result.test].push(result);
-                                return acc;
-                            }, {})
-                        ).map(([testName, testResults], idx) => (
-                            <Accordion key={idx}>
-                                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold', flexGrow: 1 }}>
-                                        {testName} ({testResults.length})
-                                    </Typography>
-                                    <Typography
-                                        variant="body2"
-                                        color={testResults.some(result => !result.pass) ? 'error.main' : 'success.main'}
-                                        sx={{ marginRight: 2 }}
-                                    >
-                                        {testResults.some(result => !result.pass) ? '❌ Fail' : '✅ Pass'}
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <List>
-                                        {testResults.map((result, subIdx) => (
-                                            <ListItem key={subIdx} divider>
-                                                <ListItemText
-                                                    primary={
-                                                        <Typography variant="body2" component="span" color={result.pass ? 'success.main' : 'error.main'}>
-                                                            Result: {result.pass ? '✅ Pass' : '❌ Fail'}
-                                                        </Typography>
-                                                    }
-                                                    secondary={
-                                                        <>
-                                                            <Typography variant="body2" component="span" sx={{ display: 'block', mt: 1 }}>
-                                                                <strong>Expected:</strong>
+            {sortedResults.map(({ timestamp, results }, index) => {
+                // Determine if there is at least one failed test in the entire run
+                const hasFailedTest = results.some((result) => !result.pass);
+
+                return (
+                    <Accordion key={index}>
+                        <AccordionSummary
+                            expandIcon={
+                                hasFailedTest ? (
+                                    <ErrorIcon color="error" sx={{ mr: 1 }} />
+                                ) : (
+                                    <CheckCircleIcon color="success" sx={{ mr: 1 }} />
+                                )
+                            }
+                            sx={{
+                                '& .MuiAccordionSummary-expandIconWrapper': {
+                                    transform: 'none !important', // Prevent rotation
+                                },
+                            }}
+                        >
+                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                Test Run: {new Date(timestamp).toLocaleString()}
+                            </Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            {/* Group results by type */}
+                            {Object.entries(
+                                results.reduce((acc, result) => {
+                                    acc[result.type] = acc[result.type] || [];
+                                    acc[result.type].push(result);
+                                    return acc;
+                                }, {})
+                            ).map(([type, typeResults], typeIndex) => {
+                                // Determine if there is at least one failed test in the type group
+                                const hasFailedTest = typeResults.some((result) => !result.pass);
+
+                                return (
+                                    <Accordion key={typeIndex}>
+                                        <AccordionSummary
+                                            expandIcon={
+                                                hasFailedTest ? (
+                                                    <ErrorIcon color="error" sx={{ mr: 1 }} />
+                                                ) : (
+                                                    <CheckCircleIcon color="success" sx={{ mr: 1 }} />
+                                                )
+                                            }
+                                            sx={{
+                                                '& .MuiAccordionSummary-expandIconWrapper': {
+                                                    transform: 'none !important', // Prevent rotation
+                                                },
+                                            }}
+                                        >
+                                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                                {type === 'UI' ? 'UI Tests' : 'API Tests'}
+                                            </Typography>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            {/* Nested accordion for each test */}
+                                            {Object.entries(
+                                                typeResults.reduce((acc, result) => {
+                                                    acc[result.test] = acc[result.test] || [];
+                                                    acc[result.test].push(result);
+                                                    return acc;
+                                                }, {})
+                                            ).map(([testName, testResults], testIndex) => {
+                                                // Determine if there is at least one failed test in the test group
+                                                const hasFailedTest = testResults.some((result) => !result.pass);
+
+                                                return (
+                                                    <Accordion key={testIndex}>
+                                                        <AccordionSummary
+                                                            expandIcon={
+                                                                hasFailedTest ? (
+                                                                    <ErrorIcon color="error" sx={{ mr: 1 }} />
+                                                                ) : (
+                                                                    <CheckCircleIcon color="success" sx={{ mr: 1 }} />
+                                                                )
+                                                            }
+                                                            sx={{
+                                                                '& .MuiAccordionSummary-expandIconWrapper': {
+                                                                    transform: 'none !important', // Prevent rotation
+                                                                },
+                                                            }}
+                                                        >
+                                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                                                                {testName}
                                                             </Typography>
-                                                            <Typography variant="body2" component="span" sx={{ display: 'block', ml: 2 }}>
-                                                                {result.expected}
-                                                            </Typography>
-                                                            <Typography variant="body2" component="span" sx={{ display: 'block', mt: 1 }}>
-                                                                <strong>Actual:</strong>
-                                                            </Typography>
-                                                            <Typography variant="body2" component="span" sx={{ display: 'block', ml: 2 }}>
-                                                                {result.actual}
-                                                            </Typography>
-                                                        </>
-                                                    }
-                                                />
-                                            </ListItem>
-                                        ))}
-                                    </List>
-                                </AccordionDetails>
-                            </Accordion>
-                        ))}
-                    </List>
-                </Box>
-            ))}
+                                                        </AccordionSummary>
+                                                        <AccordionDetails>
+                                                            <List>
+                                                                {testResults.map((result, idx) => (
+                                                                    <ListItem key={idx} divider>
+                                                                        <ListItemText
+                                                                            primary={
+                                                                                <Typography
+                                                                                    variant="body1"
+                                                                                    component="span"
+                                                                                    sx={{ fontWeight: 'bold' }}
+                                                                                >
+                                                                                    {result.pass ? '✅ Pass' : '❌ Fail'}
+                                                                                </Typography>
+                                                                            }
+                                                                            secondary={
+                                                                                <>
+                                                                                    <Typography
+                                                                                        variant="body2"
+                                                                                        component="span"
+                                                                                        sx={{ mt: 1, display: 'block' }}
+                                                                                    >
+                                                                                        <strong>Expected:</strong> {result.expected}
+                                                                                    </Typography>
+                                                                                    <Typography
+                                                                                        variant="body2"
+                                                                                        component="span"
+                                                                                        sx={{ mt: 1, display: 'block' }}
+                                                                                    >
+                                                                                        <strong>Actual:</strong> {result.actual}
+                                                                                    </Typography>
+                                                                                </>
+                                                                            }
+                                                                        />
+                                                                    </ListItem>
+                                                                ))}
+                                                            </List>
+                                                        </AccordionDetails>
+                                                    </Accordion>
+                                                );
+                                            })}
+                                        </AccordionDetails>
+                                    </Accordion>
+                                );
+                            })}
+                        </AccordionDetails>
+                    </Accordion>
+                );
+            })}
         </>
     );
 }

@@ -1,5 +1,5 @@
 'use client';
-import { AppBar, Toolbar, Typography, IconButton, Grid, FormControl, InputLabel, Select, MenuItem, TextField, Box, LinearProgress, Menu, MenuItem as MobileMenuItem, Button } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Grid, FormControl, InputLabel, Select, MenuItem, TextField, Box, LinearProgress, Menu, MenuItem as MobileMenuItem } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -17,8 +17,11 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null); // State for mobile menu
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Detect mobile view
 
-  const handleRunTests = (results) => {
-    setResults(results); // Pass results to the parent
+  const handleRunTests = ({ timestamp, results }) => {
+    setResults((prevResults) => [
+      ...prevResults,
+      { timestamp, results }, // Group results by timestamp
+    ]);
     setLoading(false); // Hide the progress bar after results are set
   };
 
@@ -40,11 +43,11 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
 
   return (
     <AppBar
-      position="sticky" // Change from "static" to "sticky"
+      position="sticky"
       sx={{
-        backgroundColor: theme.palette.background.paper, // Use background color from theme.js
-        color: theme.palette.text.primary, // Use text color from theme.js
-        zIndex: theme.zIndex.appBar, // Ensure it stays above other content
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.text.primary,
+        zIndex: theme.zIndex.appBar,
       }}
     >
       <Toolbar>
@@ -53,9 +56,9 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
           <Grid>
             <Box
               sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-              onClick={handleLogoClick} // Add onClick to refresh the page
+              onClick={handleLogoClick}
             >
-              <AdbIcon sx={{ mr: 1 }} /> {/* Add the robot icon */}
+              <AdbIcon sx={{ mr: 1 }} />
               <Typography variant="h6" sx={{ flexGrow: 1 }}>
                 Auto-Wright
               </Typography>
@@ -66,7 +69,6 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
           <Grid>
             {isMobile ? (
               <>
-                {/* Mobile Menu Button */}
                 <IconButton color="inherit" onClick={handleMobileMenuOpen}>
                   <MenuIcon />
                 </IconButton>
@@ -77,15 +79,12 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
                   sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center', // Center items in the menu
-                    padding: 2, // Add padding for better spacing
+                    alignItems: 'center',
+                    padding: 2,
                   }}
                 >
                   {/* Filters */}
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }} // Center the label
-                  >
+                  <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold', textAlign: 'center' }}>
                     Filters
                   </Typography>
 
@@ -139,10 +138,7 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
                   </MobileMenuItem>
 
                   {/* Actions */}
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ mt: 2, mb: 1, fontWeight: 'bold', textAlign: 'center' }} // Center the label
-                  >
+                  <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, fontWeight: 'bold', textAlign: 'center' }}>
                     Actions
                   </Typography>
                   <MobileMenuItem disableGutters>

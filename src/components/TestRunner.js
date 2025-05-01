@@ -14,6 +14,10 @@ export default function TestRunner({ onResults, onStart }) {
     setAnchorEl(null); // Close the menu
   };
 
+  const getTimestamp = () => {
+    return new Date().toISOString(); // Generate a timestamp in ISO format
+  };
+
   const runTests = async (type) => {
     if (onStart) onStart(); // Trigger loading state
     setLoading(true); // Disable the button
@@ -21,7 +25,8 @@ export default function TestRunner({ onResults, onStart }) {
     try {
       const res = await fetch(`/api/${type}`, { method: 'POST' });
       const data = await res.json();
-      if (onResults) onResults(data.results);
+      const timestamp = getTimestamp(); // Generate a timestamp
+      if (onResults) onResults({ timestamp, results: data.results }); // Pass timestamp and results
     } catch (error) {
       console.error(`Error running ${type} tests:`, error);
     } finally {
@@ -40,7 +45,8 @@ export default function TestRunner({ onResults, onStart }) {
       const apiRes = await fetch(`/api/api-tests`, { method: 'POST' });
       const apiData = await apiRes.json();
 
-      if (onResults) onResults([...uiData.results, ...apiData.results]); // Combine results
+      const timestamp = getTimestamp(); // Generate a timestamp
+      if (onResults) onResults({ timestamp, results: [...uiData.results, ...apiData.results] }); // Pass timestamp and combined results
     } catch (error) {
       console.error('Error running all tests:', error);
     } finally {

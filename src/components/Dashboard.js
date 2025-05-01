@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, useMediaQuery } from '@mui/material';
 import Header from './Header';
 import Results from './Results';
-import Statistics from './Statistics'; // Import the Statistics component
+import Statistics from './Statistics';
 
 export default function Dashboard() {
   const [results, setResults] = useState([]);
@@ -10,29 +10,23 @@ export default function Dashboard() {
   const [filterType, setFilterType] = useState('All');
   const [filterStatus, setFilterStatus] = useState('All');
 
-  // Detect if the screen size is mobile (e.g., less than 600px)
   const isMobile = useMediaQuery('(max-width:600px)');
 
-  const filteredResults = results.filter((result) => {
-    const matchesType = filterType === 'All' || result.type === filterType;
-    const matchesStatus = filterStatus === 'All' || (filterStatus === 'Pass' ? result.pass : !result.pass);
+  // Apply filters to the results
+  const filteredResults = results.map((run) => ({
+    ...run,
+    results: run.results.filter((result) => {
+      const matchesType = filterType === 'All' || result.type === filterType;
+      const matchesStatus = filterStatus === 'All' || (filterStatus === 'Pass' ? result.pass : !result.pass);
+      const matchesSearch =
+        searchQuery === '' ||
+        Object.values(result).some((value) =>
+          String(value).toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
-    const matchesSearch =
-      searchQuery === '' ||
-      Object.values(result).some((value) =>
-        String(value).toLowerCase().includes(searchQuery.toLowerCase())
-      ) ||
-      (searchQuery.toLowerCase() === 'pass' && result.pass) ||
-      (searchQuery.toLowerCase() === 'fail' && !result.pass);
-
-    return matchesType && matchesStatus && matchesSearch;
-  });
-
-  const groupedFilteredResults = filteredResults.reduce((acc, result) => {
-    acc[result.type] = acc[result.type] || [];
-    acc[result.type].push(result);
-    return acc;
-  }, {});
+      return matchesType && matchesStatus && matchesSearch;
+    }),
+  }));
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100vh', overflow: 'visible' }}>
@@ -60,31 +54,31 @@ export default function Dashboard() {
         {!isMobile && (
           <Box
             sx={{
-              width: '20%', // 20% of the screen width
-              height: '90vh', // Fixed height based on 90% of the viewport height
+              width: '20%',
+              height: '90vh',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
               alignItems: 'center',
-              borderRight: results?.length > 0 ? '1px solid #ccc' : '', // Optional: Add a border for separation
+              borderRight: results?.length > 0 ? '1px solid #ccc' : '',
               padding: 2,
-              boxSizing: 'border-box', // Ensure padding doesn't affect layout
+              boxSizing: 'border-box',
             }}
           >
-            <Statistics groupedFilteredResults={groupedFilteredResults} />
+            <Statistics groupedFilteredResults={filteredResults} />
           </Box>
         )}
 
         {/* Results on the right */}
         <Box
           sx={{
-            width: isMobile ? '100%' : '80%', // Full width in mobile mode, 80% otherwise
-            height: '90vh', // Height of the viewport
-            overflowY: 'auto', // Add scrolling if content overflows
+            width: isMobile ? '100%' : '80%',
+            height: '90vh',
+            overflowY: 'auto',
             padding: 2,
           }}
         >
-          <Results groupedFilteredResults={groupedFilteredResults} />
+          <Results groupedResultsByTimestamp={filteredResults} />
         </Box>
       </Box>
     </Box>
