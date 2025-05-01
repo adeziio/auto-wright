@@ -4,6 +4,7 @@ import { Button, Menu, MenuItem } from '@mui/material';
 
 export default function TestRunner({ onResults, onStart }) {
   const [anchorEl, setAnchorEl] = useState(null); // State for dropdown menu
+  const [loading, setLoading] = useState(false); // State to track if tests are running
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget); // Open the menu
@@ -15,6 +16,7 @@ export default function TestRunner({ onResults, onStart }) {
 
   const runTests = async (type) => {
     if (onStart) onStart(); // Trigger loading state
+    setLoading(true); // Disable the button
     handleMenuClose(); // Close the dropdown menu
     try {
       const res = await fetch(`/api/${type}`, { method: 'POST' });
@@ -22,11 +24,14 @@ export default function TestRunner({ onResults, onStart }) {
       if (onResults) onResults(data.results);
     } catch (error) {
       console.error(`Error running ${type} tests:`, error);
+    } finally {
+      setLoading(false); // Re-enable the button after tests complete
     }
   };
 
   const runAllTests = async () => {
     if (onStart) onStart(); // Trigger loading state
+    setLoading(true); // Disable the button
     handleMenuClose(); // Close the dropdown menu
     try {
       const uiRes = await fetch(`/api/playwright`, { method: 'POST' });
@@ -38,6 +43,8 @@ export default function TestRunner({ onResults, onStart }) {
       if (onResults) onResults([...uiData.results, ...apiData.results]); // Combine results
     } catch (error) {
       console.error('Error running all tests:', error);
+    } finally {
+      setLoading(false); // Re-enable the button after tests complete
     }
   };
 
@@ -46,13 +53,14 @@ export default function TestRunner({ onResults, onStart }) {
       <Button
         onClick={handleMenuOpen}
         variant="contained"
+        disabled={loading} // Disable the button when loading
         sx={{
           width: "100%", maxWidth: 250,
-          backgroundColor: 'primary.main',
-          '&:hover': { backgroundColor: 'primary.dark' },
+          backgroundColor: loading ? 'grey.500' : 'primary.main', // Change color when disabled
+          '&:hover': { backgroundColor: loading ? 'grey.500' : 'primary.dark' },
         }}
       >
-        Run Tests
+        {loading ? 'Running...' : 'Run Tests'} {/* Show "Running..." when loading */}
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={runAllTests}>Run All Tests</MenuItem>

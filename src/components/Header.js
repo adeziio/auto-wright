@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import MenuIcon from '@mui/icons-material/Menu';
+import AdbIcon from '@mui/icons-material/Adb'; // Import a robot icon (AdbIcon is a good choice for a robot-like icon)
 import { useColorScheme } from '../theme/ThemeProvider';
 import TestRunner from './TestRunner'; // Import the TestRunner component
 import { useState } from 'react';
@@ -33,21 +34,32 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
     setMobileMenuAnchor(null);
   };
 
+  const handleLogoClick = () => {
+    window.location.reload(); // Refresh the page
+  };
+
   return (
     <AppBar
-      position="static"
+      position="sticky" // Change from "static" to "sticky"
       sx={{
         backgroundColor: theme.palette.background.paper, // Use background color from theme.js
         color: theme.palette.text.primary, // Use text color from theme.js
+        zIndex: theme.zIndex.appBar, // Ensure it stays above other content
       }}
     >
       <Toolbar>
         <Grid container alignItems="center" justifyContent="space-between" sx={{ width: '100%' }}>
           {/* Title */}
           <Grid item>
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              Auto-Wright
-            </Typography>
+            <Box
+              sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+              onClick={handleLogoClick} // Add onClick to refresh the page
+            >
+              <AdbIcon sx={{ mr: 1 }} /> {/* Add the robot icon */}
+              <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                Auto-Wright
+              </Typography>
+            </Box>
           </Grid>
 
           {/* Right-Side Components */}
