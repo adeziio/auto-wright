@@ -22,7 +22,7 @@ export default function Statistics({ groupedFilteredResults }) {
 
     // If no data, return null (render nothing)
     if (!hasData) {
-        return <Typography>No statistics to display.</Typography>;
+        return null;
     }
 
     // Flatten results for easier processing

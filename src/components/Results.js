@@ -19,8 +19,9 @@ export default function Results({ groupedResultsByTimestamp }) {
         setCurrentExportData(null);
     };
 
+    // If no data, return null (render nothing)
     if (!groupedResultsByTimestamp || groupedResultsByTimestamp.length === 0) {
-        return <Typography>No results to display.</Typography>;
+        return null;
     }
 
     const sortedResults = [...groupedResultsByTimestamp].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
