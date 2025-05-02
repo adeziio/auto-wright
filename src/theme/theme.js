@@ -27,6 +27,16 @@ export const getDesignTokens = (mode) => ({
         },
       }),
   },
+  statusColors: {
+    pass: {
+      background: 'rgba(75, 192, 192, 0.6)', // Green for pass
+      hover: 'rgba(75, 192, 192, 0.8)', // Darker green on hover
+    },
+    fail: {
+      background: 'rgba(255, 99, 132, 0.6)', // Red for fail
+      hover: 'rgba(255, 99, 132, 0.8)', // Darker red on hover
+    },
+  },
 });
 
 export const lightTheme = createTheme(getDesignTokens('light'));

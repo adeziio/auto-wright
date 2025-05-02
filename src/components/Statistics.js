@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useTheme } from '@mui/material'; // Import useTheme
 import { Bar, Pie } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -15,6 +15,8 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 export default function Statistics({ groupedFilteredResults }) {
+    const theme = useTheme(); // Access the theme
+
     // Check if there is any data
     const hasData = groupedFilteredResults && groupedFilteredResults.length > 0;
 
@@ -51,8 +53,14 @@ export default function Statistics({ groupedFilteredResults }) {
         datasets: [
             {
                 data: [totalPass, totalFail],
-                backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
-                hoverBackgroundColor: ['rgba(75, 192, 192, 0.8)', 'rgba(255, 99, 132, 0.8)'],
+                backgroundColor: [
+                    theme.statusColors.pass.background, // Use theme color for pass
+                    theme.statusColors.fail.background, // Use theme color for fail
+                ],
+                hoverBackgroundColor: [
+                    theme.statusColors.pass.hover, // Use theme hover color for pass
+                    theme.statusColors.fail.hover, // Use theme hover color for fail
+                ],
             },
         ],
     };
@@ -67,12 +75,12 @@ export default function Statistics({ groupedFilteredResults }) {
             {
                 label: `Pass (${totalPass})`, // Include total pass count in the legend
                 data: passFailCounts.map((counts) => counts.pass),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                backgroundColor: theme.statusColors.pass.background, // Use theme color for pass
             },
             {
                 label: `Fail (${totalFail})`, // Include total fail count in the legend
                 data: passFailCounts.map((counts) => counts.fail),
-                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                backgroundColor: theme.statusColors.fail.background, // Use theme color for fail
             },
         ],
     };

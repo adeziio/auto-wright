@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { Accordion, AccordionSummary, AccordionDetails, Typography, List, ListItem, ListItemText, IconButton, Menu, MenuItem } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'; // Pass icon
-import ErrorIcon from '@mui/icons-material/Error'; // Fail icon
+import { Accordion, AccordionSummary, AccordionDetails, Typography, List, ListItem, ListItemText, IconButton, Menu, MenuItem, useTheme } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download'; // Download icon
 import { exportResultsAsDocx, exportResultsAsPdf } from './ResultsExport'; // Import export functions
 
 export default function Results({ groupedResultsByTimestamp }) {
+    const theme = useTheme(); // Access the theme
     const [anchorEl, setAnchorEl] = useState(null);
     const [currentExportData, setCurrentExportData] = useState(null);
 
@@ -53,12 +52,12 @@ export default function Results({ groupedResultsByTimestamp }) {
                                     transform: 'none !important', // Prevent rotation
                                 },
                                 backgroundColor: hasFailedTest
-                                    ? 'rgba(255, 99, 132, 0.6)' // Red for fail
-                                    : 'rgba(75, 192, 192, 0.6)', // Green for pass
+                                    ? theme.statusColors.fail.background // Use theme color for fail
+                                    : theme.statusColors.pass.background, // Use theme color for pass
                                 '&:hover': {
                                     backgroundColor: hasFailedTest
-                                        ? 'rgba(255, 99, 132, 0.8)' // Darker red on hover
-                                        : 'rgba(75, 192, 192, 0.8)', // Darker green on hover
+                                        ? theme.statusColors.fail.hover // Use theme hover color for fail
+                                        : theme.statusColors.pass.hover, // Use theme hover color for pass
                                 },
                                 color: 'text.primary',
                             }}
@@ -102,12 +101,12 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                     transform: 'none !important', // Prevent rotation
                                                 },
                                                 backgroundColor: hasFailedTest
-                                                    ? 'rgba(255, 99, 132, 0.6)' // Red for fail
-                                                    : 'rgba(75, 192, 192, 0.6)', // Green for pass
+                                                    ? theme.statusColors.fail.background // Use theme color for fail
+                                                    : theme.statusColors.pass.background, // Use theme color for pass
                                                 '&:hover': {
                                                     backgroundColor: hasFailedTest
-                                                        ? 'rgba(255, 99, 132, 0.8)' // Darker red on hover
-                                                        : 'rgba(75, 192, 192, 0.8)', // Darker green on hover
+                                                        ? theme.statusColors.fail.hover // Use theme hover color for fail
+                                                        : theme.statusColors.pass.hover, // Use theme hover color for pass
                                                 },
                                                 color: 'text.primary',
                                             }}
@@ -149,12 +148,12 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                     transform: 'none !important', // Prevent rotation
                                                                 },
                                                                 backgroundColor: hasFailedTest
-                                                                    ? 'rgba(255, 99, 132, 0.6)' // Red for fail
-                                                                    : 'rgba(75, 192, 192, 0.6)', // Green for pass
+                                                                    ? theme.statusColors.fail.background // Use theme color for fail
+                                                                    : theme.statusColors.pass.background, // Use theme color for pass
                                                                 '&:hover': {
                                                                     backgroundColor: hasFailedTest
-                                                                        ? 'rgba(255, 99, 132, 0.8)' // Darker red on hover
-                                                                        : 'rgba(75, 192, 192, 0.8)', // Darker green on hover
+                                                                        ? theme.statusColors.fail.hover // Use theme hover color for fail
+                                                                        : theme.statusColors.pass.hover, // Use theme hover color for pass
                                                                 },
                                                                 color: 'text.primary',
                                                             }}
