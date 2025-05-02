@@ -38,7 +38,6 @@ export default function Results({ groupedResultsByTimestamp }) {
                     <Accordion
                         key={index}
                         sx={{
-                            backgroundColor: hasFailedTest ? '#ffe6e6' : '#e6ffe6', // Light red for fail, light green for pass
                             border: '1px solid #ccc',
                             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
                         }}
@@ -53,24 +52,29 @@ export default function Results({ groupedResultsByTimestamp }) {
                                 '& .MuiAccordionSummary-expandIconWrapper': {
                                     transform: 'none !important', // Prevent rotation
                                 },
-                                backgroundColor: '#f5f5f5', // Light gray background for summary
+                                backgroundColor: hasFailedTest
+                                    ? 'rgba(255, 99, 132, 0.6)' // Red for fail
+                                    : 'rgba(75, 192, 192, 0.6)', // Green for pass
+                                '&:hover': {
+                                    backgroundColor: hasFailedTest
+                                        ? 'rgba(255, 99, 132, 0.8)' // Darker red on hover
+                                        : 'rgba(75, 192, 192, 0.8)', // Darker green on hover
+                                },
                                 color: 'text.primary',
                             }}
                         >
                             <Typography variant="h6" sx={{ fontWeight: 'bold', flexGrow: 1, color: 'text.primary' }}>
                                 Test Run: {new Date(timestamp).toLocaleString()}
                             </Typography>
-                            {/* Dropdown Export Icon */}
                             <IconButton
                                 color="primary"
                                 onClick={(e) => handleMenuOpen(e, timestamp, results)}
-                                sx={{ ml: 2, color: 'primary.main' }}
+                                sx={{ ml: 2 }}
                             >
                                 <DownloadIcon />
                             </IconButton>
                         </AccordionSummary>
-                        <AccordionDetails sx={{ backgroundColor: '#fafafa' }}>
-                            {/* Group results by type */}
+                        <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
                             {Object.entries(
                                 results.reduce((acc, result) => {
                                     acc[result.type] = acc[result.type] || [];
@@ -84,7 +88,6 @@ export default function Results({ groupedResultsByTimestamp }) {
                                     <Accordion
                                         key={typeIndex}
                                         sx={{
-                                            backgroundColor: hasFailedTest ? '#ffe6e6' : '#e6ffe6',
                                             border: '1px solid #ccc',
                                         }}
                                     >
@@ -98,7 +101,14 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                 '& .MuiAccordionSummary-expandIconWrapper': {
                                                     transform: 'none !important', // Prevent rotation
                                                 },
-                                                backgroundColor: '#f5f5f5',
+                                                backgroundColor: hasFailedTest
+                                                    ? 'rgba(255, 99, 132, 0.6)' // Red for fail
+                                                    : 'rgba(75, 192, 192, 0.6)', // Green for pass
+                                                '&:hover': {
+                                                    backgroundColor: hasFailedTest
+                                                        ? 'rgba(255, 99, 132, 0.8)' // Darker red on hover
+                                                        : 'rgba(75, 192, 192, 0.8)', // Darker green on hover
+                                                },
                                                 color: 'text.primary',
                                             }}
                                         >
@@ -106,8 +116,7 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                 {type === 'UI' ? 'UI Tests' : 'API Tests'}
                                             </Typography>
                                         </AccordionSummary>
-                                        <AccordionDetails sx={{ backgroundColor: '#fafafa' }}>
-                                            {/* Nested accordion for each test */}
+                                        <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
                                             {Object.entries(
                                                 typeResults.reduce((acc, result) => {
                                                     acc[result.test] = acc[result.test] || [];
@@ -121,14 +130,16 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                     <Accordion
                                                         key={testIndex}
                                                         sx={{
-                                                            backgroundColor: hasFailedTest ? '#ffe6e6' : '#e6ffe6',
                                                             border: '1px solid #ccc',
                                                         }}
                                                     >
                                                         <AccordionSummary
                                                             expandIcon={
                                                                 <Typography
-                                                                    sx={{ mr: 1, color: hasFailedTest ? 'error.main' : 'success.main' }}
+                                                                    sx={{
+                                                                        mr: 1,
+                                                                        color: hasFailedTest ? 'error.main' : 'success.main',
+                                                                    }}
                                                                 >
                                                                     {hasFailedTest ? '❌' : '✅'}
                                                                 </Typography>
@@ -137,7 +148,14 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                 '& .MuiAccordionSummary-expandIconWrapper': {
                                                                     transform: 'none !important', // Prevent rotation
                                                                 },
-                                                                backgroundColor: '#f5f5f5',
+                                                                backgroundColor: hasFailedTest
+                                                                    ? 'rgba(255, 99, 132, 0.6)' // Red for fail
+                                                                    : 'rgba(75, 192, 192, 0.6)', // Green for pass
+                                                                '&:hover': {
+                                                                    backgroundColor: hasFailedTest
+                                                                        ? 'rgba(255, 99, 132, 0.8)' // Darker red on hover
+                                                                        : 'rgba(75, 192, 192, 0.8)', // Darker green on hover
+                                                                },
                                                                 color: 'text.primary',
                                                             }}
                                                         >
@@ -145,7 +163,7 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                 {testName}
                                                             </Typography>
                                                         </AccordionSummary>
-                                                        <AccordionDetails sx={{ backgroundColor: '#fafafa' }}>
+                                                        <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
                                                             <List>
                                                                 {testResults.map((result, idx) => (
                                                                     <ListItem key={idx} divider>
@@ -154,7 +172,12 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                 <Typography
                                                                                     variant="body1"
                                                                                     component="span"
-                                                                                    sx={{ fontWeight: 'bold', color: result.pass ? 'success.main' : 'error.main' }}
+                                                                                    sx={{
+                                                                                        fontWeight: 'bold',
+                                                                                        color: result.pass
+                                                                                            ? 'success.main'
+                                                                                            : 'error.main',
+                                                                                    }}
                                                                                 >
                                                                                     {result.pass ? '✅ Pass' : '❌ Fail'}
                                                                                 </Typography>
