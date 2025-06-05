@@ -1,4 +1,10 @@
-const testTwo = async (browser) => {
+import { chromium } from 'playwright';
+
+const testTwo = async ({ headless }) => {
+    const browser = await chromium.launch({
+        headless,
+        slowMo: headless ? 0 : 500,
+    });
     const page = await browser.newPage();
     const results = [];
     try {
@@ -49,6 +55,7 @@ const testTwo = async (browser) => {
         });
     } finally {
         await page.close();
+        await browser.close();
         return results;
     }
 };
