@@ -1,16 +1,11 @@
+// Add or remove imports above as you add/remove API test files
 import getPostOne from './tests/api/getPostOne.js';
 import getPostTwo from './tests/api/getPostTwo.js';
-// Add or remove imports above as you add/remove API test files
 
 const testMap = {
   getPostOne,
   getPostTwo,
-  // Add or remove entries as you add/remove API test files
 };
-
-export function getApiTestNames() {
-  return Object.keys(testMap);
-}
 
 export default async function runApiTestByName({ testName }) {
   const testFn = testMap[testName];
