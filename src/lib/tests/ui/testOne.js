@@ -1,13 +1,7 @@
 import { chromium } from 'playwright';
 
-const testOne = async ({ headless }) => {
-    const browser = await chromium.launch({
-        headless,
-        slowMo: headless ? 0 : 500,
-        args: process.env.NODE_ENV === 'production'
-            ? ['--no-sandbox', '--disable-setuid-sandbox']
-            : [],
-    });
+const testOne = async (configs) => {
+    const browser = await chromium.launch(configs);
     const page = await browser.newPage();
     const results = [];
     try {

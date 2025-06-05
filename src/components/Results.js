@@ -44,9 +44,26 @@ export default function Results({ groupedResultsByTimestamp }) {
                     >
                         <AccordionSummary
                             expandIcon={
-                                <Typography sx={{ mr: 1, color: hasFailedTest ? 'error.main' : 'success.main' }}>
-                                    {hasFailedTest ? '❌' : '✅'}
-                                </Typography>
+                                <span style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography sx={{ mr: 1, color: hasFailedTest ? 'error.main' : 'success.main' }}>
+                                        {hasFailedTest ? '❌' : '✅'}
+                                    </Typography>
+                                    <DownloadIcon
+                                        sx={{
+                                            ml: 1,
+                                            color: 'primary.main',
+                                            cursor: 'pointer',
+                                            '&:hover': { color: 'primary.dark' },
+                                            fontSize: 24,
+                                            verticalAlign: 'middle',
+                                        }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleMenuOpen(e, timestamp, results);
+                                        }}
+                                        aria-label="Export Results"
+                                    />
+                                </span>
                             }
                             sx={{
                                 '& .MuiAccordionSummary-expandIconWrapper': {
@@ -61,18 +78,14 @@ export default function Results({ groupedResultsByTimestamp }) {
                                         : theme.statusColors.pass.hover, // Use theme hover color for pass
                                 },
                                 color: 'text.primary',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
                             }}
                         >
                             <Typography variant="h6" sx={{ fontWeight: 'bold', flexGrow: 1, color: 'text.primary' }}>
                                 Test Run: {new Date(timestamp).toLocaleString()}
                             </Typography>
-                            <IconButton
-                                color="primary"
-                                onClick={(e) => handleMenuOpen(e, timestamp, results)}
-                                sx={{ ml: 2 }}
-                            >
-                                <DownloadIcon />
-                            </IconButton>
                         </AccordionSummary>
                         <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
                             {Object.entries(

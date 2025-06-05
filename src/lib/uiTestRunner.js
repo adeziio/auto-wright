@@ -16,7 +16,11 @@ export default async function runTestByName({ headless, testName }) {
   const testFn = testMap[testName];
   if (!testFn) throw new Error(`Test "${testName}" not found`);
   try {
-    const result = await testFn({ headless });
+    const configs = {
+      headless,
+      slowMo: headless ? 0 : 500,
+    }
+    const result = await testFn(configs);
     return Array.isArray(result) ? result : [result];
   } catch (err) {
     return [{
