@@ -7,6 +7,10 @@ const testMap = {
   testTwo,
 };
 
+export function getUiTestNames() {
+  return Object.keys(testMap);
+}
+
 export default async function runTestByName({ headless, testName }) {
   const testFn = testMap[testName];
   if (!testFn) throw new Error(`Test "${testName}" not found`);
@@ -14,7 +18,7 @@ export default async function runTestByName({ headless, testName }) {
   const browser = await chromium.launch({
     headless,
     slowMo: headless ? 0 : 500,
-    channel: 'msedge',
+    channel: 'chrome',
   });
 
   const results = await testFn(browser);
