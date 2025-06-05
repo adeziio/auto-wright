@@ -4,6 +4,9 @@ const testTwo = async ({ headless }) => {
     const browser = await chromium.launch({
         headless,
         slowMo: headless ? 0 : 500,
+        args: process.env.NODE_ENV === 'production'
+            ? ['--no-sandbox', '--disable-setuid-sandbox']
+            : [],
     });
     const page = await browser.newPage();
     const results = [];
