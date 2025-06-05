@@ -1,12 +1,14 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
+
+// List your UI and API test names here
+const uiTestNames = ['testOne', 'testTwo']; // Add more as needed
+const apiTestNames = ['getPostOne', 'getPostTwo']; // Add more as needed
 
 export default function TestRunner({ onResults, onStart, headless }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [uiTestNames, setUiTestNames] = useState([]);
-  const [apiTestNames, setApiTestNames] = useState([]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -106,15 +108,6 @@ export default function TestRunner({ onResults, onStart, headless }) {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetch('/api/ui-test-list')
-      .then(res => res.json())
-      .then(data => setUiTestNames(data.testNames || []));
-    fetch('/api/api-test-list')
-      .then(res => res.json())
-      .then(data => setApiTestNames(data.testNames || []));
-  }, []);
 
   return (
     <>
