@@ -1,32 +1,33 @@
 'use client';
-import { AppBar, Toolbar, Typography, IconButton, Grid, FormControl, InputLabel, Select, MenuItem, TextField, Box, LinearProgress, Menu, MenuItem as MobileMenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Grid, FormControl, InputLabel, Select, MenuItem, TextField, Box, LinearProgress, Menu, MenuItem as MobileMenuItem, Switch, FormControlLabel } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import MenuIcon from '@mui/icons-material/Menu';
-import AdbIcon from '@mui/icons-material/Adb'; // Import a robot icon (AdbIcon is a good choice for a robot-like icon)
+import AdbIcon from '@mui/icons-material/Adb';
 import { useColorScheme } from '../theme/ThemeProvider';
-import TestRunner from './TestRunner'; // Import the TestRunner component
+import TestRunner from './TestRunner';
 import { useState } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 export default function Header({ filterType, setFilterType, filterStatus, setFilterStatus, searchQuery, setSearchQuery, setResults }) {
   const theme = useTheme();
   const { toggleMode } = useColorScheme();
-  const [loading, setLoading] = useState(false); // State to track loading
-  const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null); // State for mobile menu
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Detect mobile view
+  const [loading, setLoading] = useState(false);
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
+  const [headless, setHeadless] = useState(true); // Headless toggle state
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleRunTests = ({ timestamp, results }) => {
     setResults((prevResults) => [
       ...prevResults,
-      { timestamp, results }, // Group results by timestamp
+      { timestamp, results },
     ]);
-    setLoading(false); // Hide the progress bar after results are set
+    setLoading(false);
   };
 
   const startLoading = () => {
-    setLoading(true); // Show the progress bar
+    setLoading(true);
   };
 
   const handleMobileMenuOpen = (event) => {
@@ -38,7 +39,7 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
   };
 
   const handleLogoClick = () => {
-    window.location.reload(); // Refresh the page
+    window.location.reload();
   };
 
   return (
@@ -136,6 +137,23 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
                       sx={{ width: '100%', maxWidth: 250, mb: 2 }}
                     />
                   </MobileMenuItem>
+                  {/* Headless Toggle */}
+                  <MobileMenuItem disableGutters sx={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <Typography variant="caption" sx={{ mb: 0.5, ml: 1 }}>
+                      Headless
+                    </Typography>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={headless}
+                          onChange={(e) => setHeadless(e.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label=""
+                      sx={{ mb: 2, ml: 0 }}
+                    />
+                  </MobileMenuItem>
 
                   {/* Actions */}
                   <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, fontWeight: 'bold', textAlign: 'center' }}>
@@ -144,10 +162,9 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
                   <MobileMenuItem disableGutters>
                     {/* Run Tests Button */}
                     <TestRunner
-                      onResults={(results) => {
-                        handleRunTests(results);
-                      }}
-                      onStart={startLoading} // Trigger loading when tests start
+                      onResults={handleRunTests}
+                      onStart={startLoading}
+                      headless={headless}
                     />
                   </MobileMenuItem>
                   <MobileMenuItem disableGutters>
@@ -204,15 +221,24 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
                   size="small"
                   fullWidth
                 />
-
+                {/* Headless Toggle */}
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Typography variant="caption" sx={{ lineHeight: 1, mb: 0.2 }}>
+                    Headless
+                  </Typography>
+                  <Switch
+                    checked={headless}
+                    onChange={(e) => setHeadless(e.target.checked)}
+                    color="primary"
+                    size="small"
+                  />
+                </Box>
                 {/* Run Tests Button */}
                 <TestRunner
-                  onResults={(results) => {
-                    handleRunTests(results);
-                  }}
-                  onStart={startLoading} // Trigger loading when tests start
+                  onResults={handleRunTests}
+                  onStart={startLoading}
+                  headless={headless}
                 />
-
                 {/* Theme Toggle */}
                 <IconButton color="inherit" onClick={toggleMode}>
                   {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}

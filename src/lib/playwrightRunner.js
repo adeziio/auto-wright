@@ -1,9 +1,10 @@
 const { chromium } = require('playwright');
 
-async function runTests() {
+async function runTests({ headless } = {}) {
   const browser = await chromium.launch({
-    headless: true,
-    slowMo: 500
+    headless, // Use the parameter to toggle headless mode
+    slowMo: headless ? 0 : 500, // Add slow motion only when not headless
+    channel: 'msedge', // Launch Microsoft Edge
   });
 
   const tests = [
@@ -24,14 +25,13 @@ async function testOne(browser) {
 
   try {
     await page.goto('https://adentran.vercel.app/');
-    await page.waitForTimeout(3000); // Wait for 3 seconds
     const text = await page.textContent('//*[@id="root"]/main/div[3]/div[1]/div[1]/div/h1');
     results.push({
       test: "Test 1: Intro",
       expected: "Hi, I'm Aden.",
       actual: text,
       pass: text === "Hi, I'm Aden.",
-      type: "UI", // Added field to distinguish test type
+      type: "UI",
     });
   } catch (error) {
     results.push({
@@ -39,7 +39,7 @@ async function testOne(browser) {
       expected: "No Error",
       actual: error.message,
       pass: false,
-      type: "UI", // Added field to distinguish test type
+      type: "UI",
     });
   } finally {
     await page.close();
@@ -54,7 +54,6 @@ async function testTwo(browser) {
 
   try {
     await page.goto('https://adentran.vercel.app/');
-    await page.waitForTimeout(3000); // Wait for 3 seconds
 
     // Verify the content of the "About Me" section
     const aboutMeContent = await page.textContent('//*[@id="about"]/div/div[2]/div[2]');
@@ -67,7 +66,7 @@ async function testTwo(browser) {
       expected: "Contains 'Computer Science'",
       actual: majorCheck ? "Contains 'Computer Science'" : "Does not contain 'Computer Science'",
       pass: majorCheck,
-      type: "UI", // Added field to distinguish test type
+      type: "UI",
     });
 
     results.push({
@@ -75,7 +74,7 @@ async function testTwo(browser) {
       expected: "Contains 'Vietnam'",
       actual: countryCheck ? "Contains 'Vietnam'" : "Does not contain 'Vietnam'",
       pass: countryCheck,
-      type: "UI", // Added field to distinguish test type
+      type: "UI",
     });
 
     results.push({
@@ -83,7 +82,7 @@ async function testTwo(browser) {
       expected: "Contains 'George Mason University'",
       actual: schoolCheck ? "Contains 'George Mason University'" : "Does not contain 'George Mason University'",
       pass: schoolCheck,
-      type: "UI", // Added field to distinguish test type
+      type: "UI",
     });
 
     results.push({
@@ -91,7 +90,7 @@ async function testTwo(browser) {
       expected: "I am expected to fail and display an error",
       actual: "error",
       pass: false,
-      type: "UI", // Added field to distinguish test type
+      type: "UI",
     });
   } catch (error) {
     results.push({
@@ -99,7 +98,7 @@ async function testTwo(browser) {
       expected: "No Error",
       actual: error.message,
       pass: false,
-      type: "UI", // Added field to distinguish test type
+      type: "UI",
     });
   } finally {
     await page.close();

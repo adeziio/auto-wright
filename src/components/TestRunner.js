@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 
-export default function TestRunner({ onResults, onStart }) {
+export default function TestRunner({ onResults, onStart, headless }) { // Accept headless as a prop
   const [anchorEl, setAnchorEl] = useState(null); // State for dropdown menu
   const [loading, setLoading] = useState(false); // State to track if tests are running
 
@@ -23,7 +23,12 @@ export default function TestRunner({ onResults, onStart }) {
     setLoading(true); // Disable the button
     handleMenuClose(); // Close the dropdown menu
     try {
-      const res = await fetch(`/api/${type}`, { method: 'POST' });
+      const isPlaywright = type === 'playwright';
+      const res = await fetch(`/api/${type}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: isPlaywright ? JSON.stringify({ headless }) : undefined, // Only send headless for playwright
+      });
       const data = await res.json();
       const timestamp = getTimestamp(); // Generate a timestamp
       if (onResults) onResults({ timestamp, results: data.results }); // Pass timestamp and results
@@ -39,7 +44,11 @@ export default function TestRunner({ onResults, onStart }) {
     setLoading(true); // Disable the button
     handleMenuClose(); // Close the dropdown menu
     try {
-      const uiRes = await fetch(`/api/playwright`, { method: 'POST' });
+      const uiRes = await fetch(`/api/playwright`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ headless }), // Only playwright needs headless
+      });
       const uiData = await uiRes.json();
 
       const apiRes = await fetch(`/api/api-tests`, { method: 'POST' });
