@@ -1,6 +1,5 @@
 import { getApiTestNames } from '@/lib/apiTestRunner.js';
 
 export async function GET() {
-    const testNames = getApiTestNames();
-    return Response.json({ testNames });
+    return Response.json({ testNames: getApiTestNames() });
 }

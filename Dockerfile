@@ -11,9 +11,6 @@ RUN npm install
 # Install Playwright browsers (Chromium, Firefox, WebKit)
 RUN npx playwright install --with-deps
 
-# Install Microsoft Edge for Playwright
-RUN npx playwright install msedge
-
 # Copy the rest of the app
 COPY . .
 

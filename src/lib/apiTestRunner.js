@@ -1,11 +1,11 @@
 import getPostOne from './tests/api/getPostOne.js';
 import getPostTwo from './tests/api/getPostTwo.js';
-// Add or remove imports above as you add/remove API test files
+// Add or remove imports above as you add/remove test files
 
 const testMap = {
   getPostOne,
   getPostTwo,
-  // Add or remove entries as you add/remove API test files
+  // Add or remove entries as you add/remove test files
 };
 
 export function getApiTestNames() {

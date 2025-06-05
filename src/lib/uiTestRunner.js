@@ -1,10 +1,12 @@
 import { chromium } from 'playwright';
 import testOne from './tests/ui/testOne.js';
 import testTwo from './tests/ui/testTwo.js';
+// Add or remove imports above as you add/remove test files
 
 const testMap = {
   testOne,
   testTwo,
+  // Add or remove imports above as you add/remove test files
 };
 
 export function getUiTestNames() {
@@ -18,7 +20,6 @@ export default async function runTestByName({ headless, testName }) {
   const browser = await chromium.launch({
     headless,
     slowMo: headless ? 0 : 500,
-    channel: 'chrome',
   });
 
   const results = await testFn(browser);
