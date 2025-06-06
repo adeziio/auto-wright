@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "concurrently \"npm run start:next\" \"npm run start:worker\"",
+    "start:next": "next start",
+    "start:worker": "node src/lib/worker.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -14,6 +16,7 @@
     "@mui/icons-material": "^7.0.2",
     "@mui/material": "^7.0.2",
     "axios": "^1.9.0",
+    "concurrently": "^9.1.2",
     "docx": "^9.4.1",
     "jspdf": "^3.0.1",
     "next": "15.3.1",

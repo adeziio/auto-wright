@@ -1,0 +1,43 @@
+import { getJobs, removeJob } from './queue.js';
+import runApiTestByName from './apiTestRunner.js';
+import runTestByName from './uiTestRunner.js';
+import fs from 'fs/promises';
+import path from 'path';
+
+const resultsDir = path.join(process.cwd(), 'results');
+await fs.mkdir(resultsDir, { recursive: true });
+
+async function processJobs() {
+    const jobs = await getJobs();
+    if (jobs.length === 0) {
+        console.log('No jobs in queue.');
+    }
+    for (const job of jobs) {
+        if (job.status === 'pending') {
+            console.log('Processing job:', job);
+            try {
+                let results;
+                if (job.testName.startsWith('getPost')) {
+                    results = await runApiTestByName({ testName: job.testName });
+                } else {
+                    results = await runTestByName({ ...job.options, testName: job.testName });
+                }
+                console.log('Writing results for job:', job.id);
+                await fs.writeFile(
+                    path.join(resultsDir, `${job.id}.json`),
+                    JSON.stringify({ results, finished: Date.now() }, null, 2)
+                );
+            } catch (err) {
+                console.error('Error running job:', job, err);
+                await fs.writeFile(
+                    path.join(resultsDir, `${job.id}.json`),
+                    JSON.stringify({ error: err.message, finished: Date.now() }, null, 2)
+                );
+            }
+            await removeJob(job.id);
+        }
+    }
+}
+
+setInterval(processJobs, 2000);
+console.log('Worker started. Watching for jobs...');

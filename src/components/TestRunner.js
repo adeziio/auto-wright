@@ -18,22 +18,39 @@ export default function TestRunner({ onResults, onStart, headless }) {
 
   const getTimestamp = () => new Date().toISOString();
 
-  // Run all UI tests in parallel
+  // Helper to submit jobs and poll for results (for both UI and API)
+  const runTestsWithQueue = async (testNames, extraBody = {}) => {
+    if (!Array.isArray(testNames) || testNames.length === 0) return [];
+    // 1. Submit all jobs in one batch
+    const res = await fetch('/api/queue/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ testNames, ...extraBody }),
+    });
+    const { ids: jobIds } = await res.json();
+
+    // 2. Poll for all results
+    const pollJob = async (id) => {
+      while (true) {
+        const res = await fetch(`/api/queue/result?id=${id}`);
+        const data = await res.json();
+        if (data.results || data.error) return data.results || [data];
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+    };
+
+    // Wait for all jobs to finish
+    const resultsArr = await Promise.all(jobIds.map(pollJob));
+    return resultsArr.flat();
+  };
+
+  // Run all UI tests using the worker queue
   const runUiTests = async () => {
     if (onStart) onStart();
     setLoading(true);
     handleMenuClose();
     try {
-      const resultsArr = await Promise.all(
-        uiTestNames.map(testName =>
-          fetch('/api/ui-test', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ headless, testName }),
-          }).then(res => res.json())
-        )
-      );
-      const allResults = resultsArr.flatMap(r => r.results || []);
+      const allResults = await runTestsWithQueue(uiTestNames, { headless });
       const timestamp = getTimestamp();
       if (onResults) onResults({ timestamp, results: allResults });
     } catch (error) {
@@ -43,22 +60,13 @@ export default function TestRunner({ onResults, onStart, headless }) {
     }
   };
 
-  // Run all API tests in parallel
+  // Run all API tests using the worker queue
   const runApiTests = async () => {
     if (onStart) onStart();
     setLoading(true);
     handleMenuClose();
     try {
-      const resultsArr = await Promise.all(
-        apiTestNames.map(testName =>
-          fetch('/api/api-test', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ testName }),
-          }).then(res => res.json())
-        )
-      );
-      const allResults = resultsArr.flatMap(r => r.results || []);
+      const allResults = await runTestsWithQueue(apiTestNames);
       const timestamp = getTimestamp();
       if (onResults) onResults({ timestamp, results: allResults });
     } catch (error) {
@@ -68,36 +76,17 @@ export default function TestRunner({ onResults, onStart, headless }) {
     }
   };
 
-  // Run all UI and API tests in parallel
+  // Run all UI and API tests using the worker queue
   const runAllTests = async () => {
     if (onStart) onStart();
     setLoading(true);
     handleMenuClose();
     try {
-      const [uiResultsArr, apiResultsArr] = await Promise.all([
-        Promise.all(
-          uiTestNames.map(testName =>
-            fetch('/api/ui-test', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ headless, testName }),
-            }).then(res => res.json())
-          )
-        ),
-        Promise.all(
-          apiTestNames.map(testName =>
-            fetch('/api/api-test', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ testName }),
-            }).then(res => res.json())
-          )
-        ),
-      ]);
-      const allResults = [
-        ...uiResultsArr.flatMap(r => r.results || []),
-        ...apiResultsArr.flatMap(r => r.results || []),
-      ];
+      // Run UI jobs first, wait for all to be queued and finished
+      const uiResults = await runTestsWithQueue(uiTestNames, { headless });
+      // Then run API jobs, wait for all to be queued and finished
+      const apiResults = await runTestsWithQueue(apiTestNames);
+      const allResults = [...uiResults, ...apiResults];
       const timestamp = getTimestamp();
       if (onResults) onResults({ timestamp, results: allResults });
     } catch (error) {
