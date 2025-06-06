@@ -28,3 +28,12 @@ export async function removeJob(id) {
     const filtered = jobs.filter(j => j.id !== id);
     await fs.writeFile(queueFile, JSON.stringify(filtered, null, 2));
 }
+
+export async function setJobStatus(id, status) {
+    const jobs = await getJobs();
+    const idx = jobs.findIndex(j => j.id === id);
+    if (idx !== -1) {
+        jobs[idx].status = status;
+        await fs.writeFile(queueFile, JSON.stringify(jobs, null, 2));
+    }
+}
