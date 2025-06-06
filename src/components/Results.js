@@ -39,7 +39,14 @@ export default function Results({ groupedResultsByTimestamp }) {
         return null;
     }
 
-    const sortedResults = [...groupedResultsByTimestamp].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // Filter out runs with no results (empty after filtering)
+    const sortedResults = [...groupedResultsByTimestamp]
+        .filter(run => Array.isArray(run.results) && run.results.length > 0)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (sortedResults.length === 0) {
+        return null;
+    }
 
     return (
         <>
