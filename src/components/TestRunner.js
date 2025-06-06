@@ -21,8 +21,8 @@ export default function TestRunner({ onResults, onStart, headless }) {
   // Helper to submit jobs and poll for results (for both UI and API)
   const runTestsWithQueue = async (testNames, extraBody = {}) => {
     if (!Array.isArray(testNames) || testNames.length === 0) return [];
-    const runId = uuidv4(); // or use Date.now() for a simple numeric id
-    const queued = Date.now(); // Store when the run was queued
+    const runId = extraBody.runId || uuidv4();
+    const queued = extraBody.queued || Date.now();
     // 1. Submit all jobs in one batch
     const res = await fetch('/api/queue/add', {
       method: 'POST',
@@ -79,13 +79,12 @@ export default function TestRunner({ onResults, onStart, headless }) {
     if (onStart) onStart();
     handleMenuClose();
     try {
-      const runId = uuidv4(); // Generate a single runId for this batch
+      const runId = uuidv4();
       const queued = Date.now();
 
-      // Run UI jobs first, wait for all to be queued and finished
-      const uiResults = await runTestsWithQueue(uiTestNames, { headless, runId, queued });
-      // Then run API jobs, wait for all to be queued and finished
-      const apiResults = await runTestsWithQueue(apiTestNames, { runId, queued });
+      // Pass runId and queued to both batches
+      const uiResults = await runTestsWithQueue(uiTestNames, { headless, runId, queued, type: 'UI' });
+      const apiResults = await runTestsWithQueue(apiTestNames, { runId, queued, type: 'API' });
       const allResults = [...uiResults, ...apiResults];
       const finished = Date.now();
       if (onResults) onResults({ queued, timestamp: finished, results: allResults });
