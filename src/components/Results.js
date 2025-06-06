@@ -6,6 +6,19 @@ import {
 import DownloadIcon from '@mui/icons-material/Download';
 import { exportResultsAsDocx, exportResultsAsPdf } from './ResultsExport';
 
+function formatDuration(ms) {
+    if (!ms || ms < 0) return 'N/A';
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return [
+        hours > 0 ? `${hours}h` : null,
+        minutes > 0 ? `${minutes}m` : null,
+        `${seconds}s`
+    ].filter(Boolean).join(' ');
+}
+
 export default function Results({ groupedResultsByTimestamp }) {
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState(null);
@@ -33,7 +46,7 @@ export default function Results({ groupedResultsByTimestamp }) {
             <Typography variant="h5" sx={{ mb: 4, textAlign: 'center', color: 'text.primary' }}>
                 Results Log
             </Typography>
-            {sortedResults.map(({ timestamp, results, status }, index) => {
+            {sortedResults.map(({ timestamp, queued, results, status }, index) => {
                 const hasFailedTest = results.some((result) => result.pass === false);
                 const isPending = status === 'pending' || results.some(r => r.status === 'pending');
 
@@ -92,7 +105,18 @@ export default function Results({ groupedResultsByTimestamp }) {
                             }}
                         >
                             <Typography variant="h6" sx={{ fontWeight: 'bold', flexGrow: 1, color: 'text.primary' }}>
-                                Test Run: {new Date(timestamp).toLocaleString()}
+                                Test Run:
+                                <span style={{ fontWeight: 400, marginLeft: 8 }}>
+                                    Queued: {queued ? new Date(queued).toLocaleString() : 'N/A'}
+                                    {timestamp && queued && timestamp !== queued && (
+                                        <>
+                                            &rarr; Finished: {new Date(timestamp).toLocaleString()}
+                                            <span style={{ marginLeft: 12, color: '#888', fontWeight: 400 }}>
+                                                ({formatDuration(timestamp - queued)})
+                                            </span>
+                                        </>
+                                    )}
+                                </span>
                             </Typography>
                             {isPending && (
                                 <Typography

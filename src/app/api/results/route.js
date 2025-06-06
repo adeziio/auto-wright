@@ -17,6 +17,7 @@ export async function GET() {
                 allJobs.push({
                     runId: parsed.runId,
                     timestamp: parsed.finished,
+                    queued: parsed.queued,
                     results: parsed.results,
                     status: 'finished',
                 });
@@ -32,6 +33,7 @@ export async function GET() {
                 allJobs.push({
                     runId: job.runId,
                     timestamp: job.created,
+                    queued: job.queued,
                     results: [
                         {
                             test: job.testName,
@@ -56,6 +58,7 @@ export async function GET() {
             grouped[job.runId] = {
                 runId: job.runId,
                 timestamp: job.timestamp,
+                queued: job.queued,
                 results: [],
                 pendingCount: 0,
                 finishedCount: 0,
@@ -66,6 +69,9 @@ export async function GET() {
         if (job.status === 'finished') grouped[job.runId].finishedCount += 1;
         // Use the latest timestamp
         if (job.timestamp > grouped[job.runId].timestamp) grouped[job.runId].timestamp = job.timestamp;
+        if (job.queued && (!grouped[job.runId].queued || job.queued < grouped[job.runId].queued)) {
+            grouped[job.runId].queued = job.queued;
+        }
     }
 
     // Set status: pending if any pending jobs remain, else finished

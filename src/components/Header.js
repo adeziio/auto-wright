@@ -1,5 +1,5 @@
 'use client';
-import { AppBar, Toolbar, Typography, IconButton, Grid, FormControl, InputLabel, Select, MenuItem, TextField, Box, LinearProgress, Menu, MenuItem as MobileMenuItem, Switch, FormControlLabel } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Grid, FormControl, InputLabel, Select, MenuItem, TextField, Box, Menu, MenuItem as MobileMenuItem, Switch, FormControlLabel } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -13,7 +13,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 export default function Header({ filterType, setFilterType, filterStatus, setFilterStatus, searchQuery, setSearchQuery, setResults }) {
   const theme = useTheme();
   const { toggleMode } = useColorScheme();
-  const [loading, setLoading] = useState(false);
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState(null);
   const [headless, setHeadless] = useState(true); // Headless toggle state
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -24,11 +23,6 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
       ...prevResults,
       { timestamp, results },
     ]);
-    setLoading(false);
-  };
-
-  const startLoading = () => {
-    setLoading(true);
   };
 
   const handleMobileMenuOpen = (event) => {
@@ -166,7 +160,6 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
                     {/* Run Tests Button */}
                     <TestRunner
                       onResults={handleRunTests}
-                      onStart={startLoading}
                       headless={headless}
                     />
                   </MobileMenuItem>
@@ -241,7 +234,6 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
                 {/* Run Tests Button */}
                 <TestRunner
                   onResults={handleRunTests}
-                  onStart={startLoading}
                   headless={headless}
                 />
                 {/* Theme Toggle */}
@@ -253,9 +245,6 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
           </Grid>
         </Grid>
       </Toolbar>
-
-      {/* Linear Progress Bar */}
-      {loading && <LinearProgress sx={{ width: '100%' }} />}
     </AppBar>
   );
 }

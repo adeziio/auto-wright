@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "test": "GET /posts/1 returns post with ID 1",
+      "expected": 1,
+      "actual": 1,
+      "pass": true,
+      "type": "API"
+    }
+  ],
+  "finished": 1749242740724,
+  "runId": "9dd6a937-2f80-4e0e-8704-2a88afd6e387",
+  "queued": 1749242737911
+}

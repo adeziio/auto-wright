@@ -27,7 +27,7 @@ async function processJobs() {
         console.log('Writing results for job:', job.id);
         await fs.writeFile(
             path.join(resultsDir, `${job.id}.json`),
-            JSON.stringify({ results, finished: Date.now(), runId: job.runId }, null, 2)
+            JSON.stringify({ results, finished: Date.now(), runId: job.runId, queued: job.queued }, null, 2)
         );
     } catch (err) {
         console.error('Error running job:', job, err);

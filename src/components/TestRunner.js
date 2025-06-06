@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from 'uuid'; // npm install uuid
 
 export default function TestRunner({ onResults, onStart, headless }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [uiTestNames, setUiTestNames] = useState([]);
   const [apiTestNames, setApiTestNames] = useState([]);
 
@@ -23,11 +22,12 @@ export default function TestRunner({ onResults, onStart, headless }) {
   const runTestsWithQueue = async (testNames, extraBody = {}) => {
     if (!Array.isArray(testNames) || testNames.length === 0) return [];
     const runId = uuidv4(); // or use Date.now() for a simple numeric id
+    const queued = Date.now(); // Store when the run was queued
     // 1. Submit all jobs in one batch
     const res = await fetch('/api/queue/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ testNames, runId, ...extraBody }),
+      body: JSON.stringify({ testNames, runId, queued, ...extraBody }),
     });
     const { ids: jobIds } = await res.json();
 
@@ -49,54 +49,48 @@ export default function TestRunner({ onResults, onStart, headless }) {
   // Run all UI tests using the worker queue
   const runUiTests = async () => {
     if (onStart) onStart();
-    setLoading(true);
     handleMenuClose();
     try {
-      const allResults = await runTestsWithQueue(uiTestNames, { headless });
-      const timestamp = getTimestamp();
-      if (onResults) onResults({ timestamp, results: allResults });
+      const queued = Date.now();
+      const allResults = await runTestsWithQueue(uiTestNames, { headless, queued });
+      const finished = Date.now();
+      if (onResults) onResults({ queued, timestamp: finished, results: allResults });
     } catch (error) {
       console.error('Error running UI tests:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   // Run all API tests using the worker queue
   const runApiTests = async () => {
     if (onStart) onStart();
-    setLoading(true);
     handleMenuClose();
     try {
-      const allResults = await runTestsWithQueue(apiTestNames);
-      const timestamp = getTimestamp();
-      if (onResults) onResults({ timestamp, results: allResults });
+      const queued = Date.now();
+      const allResults = await runTestsWithQueue(apiTestNames, { queued });
+      const finished = Date.now();
+      if (onResults) onResults({ queued, timestamp: finished, results: allResults });
     } catch (error) {
       console.error('Error running API tests:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
   // Run all UI and API tests using the worker queue
   const runAllTests = async () => {
     if (onStart) onStart();
-    setLoading(true);
     handleMenuClose();
     try {
       const runId = uuidv4(); // Generate a single runId for this batch
+      const queued = Date.now();
 
       // Run UI jobs first, wait for all to be queued and finished
-      const uiResults = await runTestsWithQueue(uiTestNames, { headless, runId });
+      const uiResults = await runTestsWithQueue(uiTestNames, { headless, runId, queued });
       // Then run API jobs, wait for all to be queued and finished
-      const apiResults = await runTestsWithQueue(apiTestNames, { runId });
+      const apiResults = await runTestsWithQueue(apiTestNames, { runId, queued });
       const allResults = [...uiResults, ...apiResults];
-      const timestamp = getTimestamp();
-      if (onResults) onResults({ timestamp, results: allResults });
+      const finished = Date.now();
+      if (onResults) onResults({ queued, timestamp: finished, results: allResults });
     } catch (error) {
       console.error('Error running all tests:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -114,14 +108,13 @@ export default function TestRunner({ onResults, onStart, headless }) {
       <Button
         onClick={handleMenuOpen}
         variant="contained"
-        disabled={loading}
         sx={{
           width: "100%", maxWidth: 250,
-          backgroundColor: loading ? 'grey.500' : 'primary.main',
-          '&:hover': { backgroundColor: loading ? 'grey.500' : 'primary.dark' },
+          backgroundColor: 'primary.main',
+          '&:hover': { backgroundColor: 'primary.dark' },
         }}
       >
-        {loading ? 'Running...' : 'Run Tests'}
+        Run Tests
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
         <MenuItem onClick={runAllTests}>Run All Tests</MenuItem>
