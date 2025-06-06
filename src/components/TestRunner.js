@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid'; // npm install uuid
 
 export default function TestRunner({ onResults, onStart, headless }) {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -21,11 +22,12 @@ export default function TestRunner({ onResults, onStart, headless }) {
   // Helper to submit jobs and poll for results (for both UI and API)
   const runTestsWithQueue = async (testNames, extraBody = {}) => {
     if (!Array.isArray(testNames) || testNames.length === 0) return [];
+    const runId = uuidv4(); // or use Date.now() for a simple numeric id
     // 1. Submit all jobs in one batch
     const res = await fetch('/api/queue/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ testNames, ...extraBody }),
+      body: JSON.stringify({ testNames, runId, ...extraBody }),
     });
     const { ids: jobIds } = await res.json();
 
@@ -82,10 +84,12 @@ export default function TestRunner({ onResults, onStart, headless }) {
     setLoading(true);
     handleMenuClose();
     try {
+      const runId = uuidv4(); // Generate a single runId for this batch
+
       // Run UI jobs first, wait for all to be queued and finished
-      const uiResults = await runTestsWithQueue(uiTestNames, { headless });
+      const uiResults = await runTestsWithQueue(uiTestNames, { headless, runId });
       // Then run API jobs, wait for all to be queued and finished
-      const apiResults = await runTestsWithQueue(apiTestNames);
+      const apiResults = await runTestsWithQueue(apiTestNames, { runId });
       const allResults = [...uiResults, ...apiResults];
       const timestamp = getTimestamp();
       if (onResults) onResults({ timestamp, results: allResults });

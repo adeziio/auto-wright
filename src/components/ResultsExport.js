@@ -54,7 +54,7 @@ export const exportResultsAsDocx = (timestamp, results) => {
                         text: `Expected: `,
                         bold: true,
                     }),
-                    new TextRun(result.expected),
+                    new TextRun(result.expected ? String(result.expected) : 'N/A'),
                 ],
             });
 
@@ -64,9 +64,13 @@ export const exportResultsAsDocx = (timestamp, results) => {
                         text: `Actual: `,
                         bold: true,
                     }),
-                    new TextRun(result.actual),
+                    new TextRun(result.actual ? String(result.actual) : 'N/A'),
                 ],
             });
+
+            let statusText = 'Pending ⏳';
+            if (result.pass === true) statusText = 'Pass ✅';
+            else if (result.pass === false) statusText = 'Fail ❌';
 
             const status = new Paragraph({
                 children: [
@@ -74,7 +78,7 @@ export const exportResultsAsDocx = (timestamp, results) => {
                         text: `Status: `,
                         bold: true,
                     }),
-                    new TextRun(result.pass ? 'Pass ✅' : 'Fail ❌'),
+                    new TextRun(statusText),
                 ],
                 spacing: { after: 300 },
             });
@@ -148,20 +152,24 @@ export const exportResultsAsPdf = (timestamp, results) => {
 
             // Expected
             doc.setFont('helvetica', 'normal');
-            doc.text(`Expected: ${result.expected}`, marginLeft, y);
+            doc.text(`Expected: ${result.expected ? String(result.expected) : 'N/A'}`, marginLeft, y);
             y += 6;
 
             // Actual
-            doc.text(`Actual: ${result.actual}`, marginLeft, y);
+            doc.text(`Actual: ${result.actual ? String(result.actual) : 'N/A'}`, marginLeft, y);
             y += 6;
 
             // Status with colored text
-            const statusText = `Status: ${result.pass ? 'Pass' : 'Fail'}`;
-            if (result.pass) {
-                doc.setTextColor(0, 128, 0); // Green color for "Pass"
-            } else {
-                doc.setTextColor(255, 0, 0); // Red color for "Fail"
+            let statusText = 'Status: Pending';
+            let color = [128, 128, 128]; // Gray for pending
+            if (result.pass === true) {
+                statusText = 'Status: Pass';
+                color = [0, 128, 0]; // Green
+            } else if (result.pass === false) {
+                statusText = 'Status: Fail';
+                color = [255, 0, 0]; // Red
             }
+            doc.setTextColor(...color);
             doc.setFont('helvetica', 'bold');
             doc.text(statusText, marginLeft, y);
             doc.setTextColor(0, 0, 0); // Reset text color to black

@@ -4,15 +4,15 @@ import { randomUUID } from 'crypto';
 
 export async function POST(request) {
     const body = await request.json();
-    const { testNames, ...options } = body;
+    const { testNames, runId, ...options } = body;
     if (!Array.isArray(testNames)) {
         return NextResponse.json({ error: 'testNames must be an array' }, { status: 400 });
     }
     const ids = [];
     for (const testName of testNames) {
         const id = randomUUID();
-        await addJob({ id, testName, options, status: 'pending', created: Date.now() });
+        await addJob({ id, runId, testName, options, status: 'pending', created: Date.now() });
         ids.push(id);
     }
-    return NextResponse.json({ ids });
+    return NextResponse.json({ ids, runId });
 }

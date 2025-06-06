@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "test": "Test 2: About Me Section",
+      "expected": "Contains 'Computer Science'",
+      "actual": "Contains 'Computer Science'",
+      "pass": true,
+      "type": "UI"
+    },
+    {
+      "test": "Test 2: About Me Section",
+      "expected": "Contains 'Vietnam'",
+      "actual": "Contains 'Vietnam'",
+      "pass": true,
+      "type": "UI"
+    },
+    {
+      "test": "Test 2: About Me Section",
+      "expected": "Contains 'George Mason University'",
+      "actual": "Contains 'George Mason University'",
+      "pass": true,
+      "type": "UI"
+    },
+    {
+      "test": "Test 2: About Me Section",
+      "expected": "I am expected to fail and display an error",
+      "actual": "error",
+      "pass": false,
+      "type": "UI"
+    }
+  ],
+  "finished": 1749240271100,
+  "runId": "02807402-0c3c-4c89-8bb3-67ce9b305a44"
+}
