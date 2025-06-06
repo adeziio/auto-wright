@@ -19,7 +19,7 @@ async function processJobs() {
     console.log('Processing job:', job);
     try {
         let results;
-        if (job.testName.startsWith('getPost')) {
+        if (job.type === 'API') {
             results = await runApiTestByName({ testName: job.testName });
         } else {
             results = await runTestByName({ ...job.options, testName: job.testName });

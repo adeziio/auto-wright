@@ -52,7 +52,7 @@ export default function TestRunner({ onResults, onStart, headless }) {
     handleMenuClose();
     try {
       const queued = Date.now();
-      const allResults = await runTestsWithQueue(uiTestNames, { headless, queued });
+      const allResults = await runTestsWithQueue(uiTestNames, { headless, type: 'UI', queued });
       const finished = Date.now();
       if (onResults) onResults({ queued, timestamp: finished, results: allResults });
     } catch (error) {
@@ -66,7 +66,7 @@ export default function TestRunner({ onResults, onStart, headless }) {
     handleMenuClose();
     try {
       const queued = Date.now();
-      const allResults = await runTestsWithQueue(apiTestNames, { queued });
+      const allResults = await runTestsWithQueue(apiTestNames, { type: 'API', queued });
       const finished = Date.now();
       if (onResults) onResults({ queued, timestamp: finished, results: allResults });
     } catch (error) {
