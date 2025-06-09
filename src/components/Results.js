@@ -40,9 +40,16 @@ export default function Results({ groupedResultsByTimestamp }) {
     }
 
     // Filter out runs with no results (empty after filtering)
+    // Sort by queued time (newest first, oldest last)
     const sortedResults = [...groupedResultsByTimestamp]
         .filter(run => Array.isArray(run.results) && run.results.length > 0)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        .sort((a, b) => {
+            // If either queued is missing, fallback to timestamp
+            if (a.queued && b.queued) {
+                return new Date(b.queued) - new Date(a.queued);
+            }
+            return new Date(b.timestamp) - new Date(a.timestamp);
+        });
 
     if (sortedResults.length === 0) {
         return null;
