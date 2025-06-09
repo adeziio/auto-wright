@@ -1,10 +1,10 @@
-import getPostOne from './tests/api/getPostOne.js';
-import getPostTwo from './tests/api/getPostTwo.js';
+import testOne from './tests/api/testOne.js';
+import testTwo from './tests/api/testTwo.js';
 // Add or remove imports above as you add/remove test files
 
 const testMap = {
-  getPostOne,
-  getPostTwo,
+  testOne,
+  testTwo,
   // Add or remove entries as you add/remove test files
 };
 

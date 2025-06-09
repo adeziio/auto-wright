@@ -1,6 +1,6 @@
 import { getJobs, removeJob, setJobStatus } from './queue.js';
 import runApiTestByName from './apiTestRunner.js';
-import runTestByName from './uiTestRunner.js';
+import runUiTestByName from './uiTestRunner.js';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -22,7 +22,7 @@ async function processJobs() {
         if (job.type === 'API') {
             results = await runApiTestByName({ testName: job.testName });
         } else {
-            results = await runTestByName({ ...job.options, testName: job.testName });
+            results = await runUiTestByName({ ...job.options, testName: job.testName });
         }
         console.log('Writing results for job:', job.id);
         await fs.writeFile(

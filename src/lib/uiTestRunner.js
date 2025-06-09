@@ -12,7 +12,7 @@ export function getUiTestNames() {
   return Object.keys(testMap);
 }
 
-export default async function runTestByName({ headless, testName }) {
+export default async function runUiTestByName({ headless, testName }) {
   const testFn = testMap[testName];
   if (!testFn) throw new Error(`Test "${testName}" not found`);
   try {

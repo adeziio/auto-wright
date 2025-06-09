@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export default async function getPostTwo() {
+export default async function testTwo() {
     try {
         const response = await axios.get('https://jsonplaceholder.typicode.com/posts/2');
         return {
