@@ -240,12 +240,12 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                             <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
                                                                 <List>
                                                                     {testResults.map((result, idx) => (
-                                                                        <ListItem key={idx} divider>
+                                                                        <ListItem key={idx} divider sx={{ alignItems: 'flex-start' }}>
                                                                             <ListItemText
                                                                                 primary={
                                                                                     <Typography
                                                                                         variant="body1"
-                                                                                        component="span"
+                                                                                        component="span" // Use span instead of default p
                                                                                         sx={{
                                                                                             fontWeight: 'bold',
                                                                                             color:
@@ -264,22 +264,43 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                     </Typography>
                                                                                 }
                                                                                 secondary={
-                                                                                    <>
-                                                                                        <Typography
-                                                                                            variant="body2"
-                                                                                            component="span"
-                                                                                            sx={{ mt: 1, display: 'block' }}
-                                                                                        >
-                                                                                            <strong>Expected:</strong> {result.expected}
-                                                                                        </Typography>
-                                                                                        <Typography
-                                                                                            variant="body2"
-                                                                                            component="span"
-                                                                                            sx={{ mt: 1, display: 'block' }}
-                                                                                        >
-                                                                                            <strong>Actual:</strong> {result.actual}
-                                                                                        </Typography>
-                                                                                    </>
+                                                                                    <span>
+                                                                                        {result.expected !== undefined && (
+                                                                                            <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
+                                                                                                <strong>Expected:</strong> <span style={{ fontFamily: 'monospace' }}>{String(result.expected)}</span>
+                                                                                            </Typography>
+                                                                                        )}
+                                                                                        {result.actual !== undefined && (
+                                                                                            <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
+                                                                                                <strong>Actual:</strong> <span style={{ fontFamily: 'monospace' }}>{String(result.actual)}</span>
+                                                                                            </Typography>
+                                                                                        )}
+                                                                                        {result.url && (
+                                                                                            <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
+                                                                                                <strong>URL:</strong> <span style={{ fontFamily: 'monospace' }}>{result.url}</span>
+                                                                                            </Typography>
+                                                                                        )}
+                                                                                        {result.type === 'API' && (
+                                                                                            <span>
+                                                                                                {result.request && (
+                                                                                                    <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
+                                                                                                        <strong>Request:</strong>{' '}
+                                                                                                        <span style={{ fontFamily: 'monospace' }}>
+                                                                                                            {JSON.stringify(result.request)}
+                                                                                                        </span>
+                                                                                                    </Typography>
+                                                                                                )}
+                                                                                                {result.response && (
+                                                                                                    <Typography variant="caption" component="span" sx={{ display: 'block' }}>
+                                                                                                        <strong>Response:</strong>{' '}
+                                                                                                        <span style={{ fontFamily: 'monospace' }}>
+                                                                                                            {JSON.stringify(result.response)}
+                                                                                                        </span>
+                                                                                                    </Typography>
+                                                                                                )}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </span>
                                                                                 }
                                                                             />
                                                                         </ListItem>

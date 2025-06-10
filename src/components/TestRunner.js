@@ -116,9 +116,49 @@ export default function TestRunner({ onResults, onStart, headless }) {
         Run Tests
       </Button>
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={runAllTests}>Run All Tests</MenuItem>
-        <MenuItem onClick={runUiTests}>Run UI Tests</MenuItem>
-        <MenuItem onClick={runApiTests}>Run API Tests</MenuItem>
+        <MenuItem onClick={runAllTests}>All Tests</MenuItem>
+        <MenuItem
+          onClick={runUiTests}
+          sx={{ pl: 4 }}
+        >
+          All UI Tests
+        </MenuItem>
+        {uiTestNames.map((testName, idx) => (
+          <MenuItem
+            key={`ui-${testName}`}
+            onClick={async () => {
+              handleMenuClose();
+              const queued = Date.now();
+              const allResults = await runTestsWithQueue([testName], { headless, type: 'UI', queued });
+              const finished = Date.now();
+              if (onResults) onResults({ queued, timestamp: finished, results: allResults });
+            }}
+            sx={{ pl: 8 }} // Further indent for individual UI tests
+          >
+            {testName}
+          </MenuItem>
+        ))}
+        <MenuItem
+          onClick={runApiTests}
+          sx={{ pl: 4 }}
+        >
+          All API Tests
+        </MenuItem>
+        {apiTestNames.map((testName, idx) => (
+          <MenuItem
+            key={`api-${testName}`}
+            onClick={async () => {
+              handleMenuClose();
+              const queued = Date.now();
+              const allResults = await runTestsWithQueue([testName], { type: 'API', queued });
+              const finished = Date.now();
+              if (onResults) onResults({ queued, timestamp: finished, results: allResults });
+            }}
+            sx={{ pl: 8 }} // Further indent for individual API tests
+          >
+            {testName}
+          </MenuItem>
+        ))}
       </Menu>
     </>
   );
