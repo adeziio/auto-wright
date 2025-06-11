@@ -36,35 +36,35 @@ export const exportResultsAsDocx = (timestamp, results) => {
             spacing: { after: 200 },
         });
 
-        const resultParagraphs = typeResults.map((result) => {
-            const testName = new Paragraph({
-                children: [
-                    new TextRun({
-                        text: `Test: ${result.test}`,
-                        bold: true,
-                        size: 24,
-                    }),
-                ],
-                spacing: { after: 200 },
-            });
+        const resultParagraphs = [];
+        let lastTestName = null;
+        let stepCounter = 1;
 
-            const expected = new Paragraph({
-                children: [
-                    new TextRun({
-                        text: `Expected: `,
-                        bold: true,
-                    }),
-                    new TextRun(result.expected ? String(result.expected) : 'N/A'),
-                ],
-            });
+        typeResults.forEach((result, idx) => {
+            // Only add the test name if it's different from the previous one
+            if (result.test !== lastTestName) {
+                resultParagraphs.push(
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: `Test: ${result.test}`,
+                                bold: true,
+                                size: 24,
+                            }),
+                        ],
+                        spacing: { after: 100 },
+                    })
+                );
+                lastTestName = result.test;
+                stepCounter = 1; // Reset step number for each new test
+            }
 
-            const actual = new Paragraph({
+            const stepNumber = new Paragraph({
                 children: [
                     new TextRun({
-                        text: `Actual: `,
+                        text: `Step ${stepCounter++}`,
                         bold: true,
                     }),
-                    new TextRun(result.actual ? String(result.actual) : 'N/A'),
                 ],
             });
 
@@ -74,16 +74,72 @@ export const exportResultsAsDocx = (timestamp, results) => {
 
             const status = new Paragraph({
                 children: [
-                    new TextRun({
-                        text: `Status: `,
-                        bold: true,
-                    }),
+                    new TextRun({ text: 'Status: ', bold: true }),
                     new TextRun(statusText),
                 ],
-                spacing: { after: 300 },
             });
 
-            return [testName, expected, actual, status];
+            const description = result.description
+                ? new Paragraph({
+                    children: [
+                        new TextRun({ text: 'Description: ', bold: true }),
+                        new TextRun(result.description),
+                    ],
+                })
+                : null;
+
+            const expected = new Paragraph({
+                children: [
+                    new TextRun({ text: 'Expected: ', bold: true }),
+                    new TextRun(result.expected !== undefined ? String(result.expected) : 'N/A'),
+                ],
+            });
+
+            const actual = new Paragraph({
+                children: [
+                    new TextRun({ text: 'Actual: ', bold: true }),
+                    new TextRun(result.actual !== undefined ? String(result.actual) : 'N/A'),
+                ],
+            });
+
+            const url = result.url
+                ? new Paragraph({
+                    children: [
+                        new TextRun({ text: 'URL: ', bold: true }),
+                        new TextRun(result.url),
+                    ],
+                })
+                : null;
+
+            const request = result.request
+                ? new Paragraph({
+                    children: [
+                        new TextRun({ text: 'Request: ', bold: true }),
+                        new TextRun(JSON.stringify(result.request)),
+                    ],
+                })
+                : null;
+
+            const response = result.response
+                ? new Paragraph({
+                    children: [
+                        new TextRun({ text: 'Response: ', bold: true }),
+                        new TextRun(JSON.stringify(result.response)),
+                    ],
+                })
+                : null;
+
+            resultParagraphs.push(
+                stepNumber,
+                status,
+                ...(description ? [description] : []),
+                expected,
+                actual,
+                ...(url ? [url] : []),
+                ...(request ? [request] : []),
+                ...(response ? [response] : []),
+                new Paragraph({ children: [], spacing: { after: 300 } })
+            );
         });
 
         return [typeHeader, ...resultParagraphs.flat()];
@@ -117,8 +173,8 @@ export const exportResultsAsDocx = (timestamp, results) => {
  */
 export const exportResultsAsPdf = (timestamp, results) => {
     const doc = new jsPDF();
-    const marginLeft = 10; // Left margin for text
-    let y = 20; // Vertical position for text
+    const marginLeft = 10;
+    let y = 20;
 
     // Title
     const title = `Test Run: ${new Date(timestamp).toLocaleString()}`;
@@ -134,58 +190,93 @@ export const exportResultsAsPdf = (timestamp, results) => {
         return acc;
     }, {});
 
-    // Iterate through each type and its results
     Object.entries(groupedByType).forEach(([type, typeResults]) => {
-        // Add a header for the type
+        // Type header
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.text(type === 'UI' ? 'UI Tests' : 'API Tests', marginLeft, y);
         y += 8;
 
-        // Iterate through each test result in the type
-        typeResults.forEach((result) => {
-            // Test Name
-            doc.setFontSize(12);
+        let lastTestName = null;
+        let stepCounter = 1;
+
+        typeResults.forEach((result, idx) => {
+            // Only add the test name if it's different from the previous one
+            if (result.test !== lastTestName) {
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Test: ${result.test}`, marginLeft, y);
+                y += 7;
+                lastTestName = result.test;
+                stepCounter = 1; // Reset step number for each new test
+            }
+
+            // Step number
+            doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
-            doc.text(`Test: ${result.test}`, marginLeft, y);
+            doc.text(`Step ${stepCounter++}`, marginLeft, y);
             y += 6;
 
-            // Expected
-            doc.setFont('helvetica', 'normal');
-            doc.text(`Expected: ${result.expected ? String(result.expected) : 'N/A'}`, marginLeft, y);
-            y += 6;
-
-            // Actual
-            doc.text(`Actual: ${result.actual ? String(result.actual) : 'N/A'}`, marginLeft, y);
-            y += 6;
-
-            // Status with colored text
-            let statusText = 'Status: Pending';
-            let color = [128, 128, 128]; // Gray for pending
+            // Status
+            let statusText = 'Status: Pending ⏳';
+            let color = [128, 128, 128];
             if (result.pass === true) {
-                statusText = 'Status: Pass';
-                color = [0, 128, 0]; // Green
+                statusText = 'Status: Pass ✅';
+                color = [0, 128, 0];
             } else if (result.pass === false) {
-                statusText = 'Status: Fail';
-                color = [255, 0, 0]; // Red
+                statusText = 'Status: Fail ❌';
+                color = [255, 0, 0];
             }
             doc.setTextColor(...color);
             doc.setFont('helvetica', 'bold');
             doc.text(statusText, marginLeft, y);
-            doc.setTextColor(0, 0, 0); // Reset text color to black
-            y += 10; // Add spacing after each test
+            doc.setTextColor(0, 0, 0);
+            y += 6;
 
-            // Check if the page needs to break
+            // Description
+            if (result.description) {
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Description: ${result.description}`, marginLeft, y);
+                y += 6;
+            }
+
+            // Expected
+            doc.text(`Expected: ${result.expected !== undefined ? String(result.expected) : 'N/A'}`, marginLeft, y);
+            y += 6;
+
+            // Actual
+            doc.text(`Actual: ${result.actual !== undefined ? String(result.actual) : 'N/A'}`, marginLeft, y);
+            y += 6;
+
+            // URL
+            if (result.url) {
+                doc.text(`URL: ${result.url}`, marginLeft, y);
+                y += 6;
+            }
+
+            // Request
+            if (result.request) {
+                doc.text(`Request: ${JSON.stringify(result.request)}`, marginLeft, y);
+                y += 6;
+            }
+
+            // Response
+            if (result.response) {
+                doc.text(`Response: ${JSON.stringify(result.response)}`, marginLeft, y);
+                y += 6;
+            }
+
+            y += 4; // Spacing after each step
+
+            // Page break if needed
             if (y > 280) {
                 doc.addPage();
-                y = 20; // Reset vertical position for the new page
+                y = 20;
             }
         });
 
-        // Add spacing after each type
-        y += 10;
+        y += 10; // Spacing after each type
     });
 
-    // Save the PDF
     doc.save(`test-run-${new Date(timestamp).toISOString()}.pdf`);
 };

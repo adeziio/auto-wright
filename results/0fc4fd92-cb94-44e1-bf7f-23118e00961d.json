@@ -1,0 +1,55 @@
+{
+  "results": [
+    {
+      "test": "testOne",
+      "url": "https://jsonplaceholder.typicode.com/posts/1",
+      "request": {
+        "method": "GET",
+        "url": "https://jsonplaceholder.typicode.com/posts/1"
+      },
+      "response": {
+        "status": 200,
+        "data": {
+          "userId": 1,
+          "id": 1,
+          "title": "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
+          "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
+        },
+        "headers": {
+          "date": "Wed, 11 Jun 2025 16:44:37 GMT",
+          "content-type": "application/json; charset=utf-8",
+          "transfer-encoding": "chunked",
+          "connection": "keep-alive",
+          "server": "cloudflare",
+          "report-to": "{\"group\":\"heroku-nel\",\"max_age\":3600,\"endpoints\":[{\"url\":\"https://nel.heroku.com/reports?ts=1745348601&sid=e11707d5-02a7-43ef-b45e-2cf4d2036f7d&s=%2Fm2Z%2F9TIOSZRaB8%2BMLRxIV3zS4Qyb38mp95WAmQyLzs%3D\"}]}",
+          "reporting-endpoints": "heroku-nel=https://nel.heroku.com/reports?ts=1745348601&sid=e11707d5-02a7-43ef-b45e-2cf4d2036f7d&s=%2Fm2Z%2F9TIOSZRaB8%2BMLRxIV3zS4Qyb38mp95WAmQyLzs%3D",
+          "nel": "{\"report_to\":\"heroku-nel\",\"max_age\":3600,\"success_fraction\":0.005,\"failure_fraction\":0.05,\"response_headers\":[\"Via\"]}",
+          "x-powered-by": "Express",
+          "x-ratelimit-limit": "1000",
+          "x-ratelimit-remaining": "999",
+          "x-ratelimit-reset": "1745348653",
+          "vary": "Origin, Accept-Encoding",
+          "access-control-allow-credentials": "true",
+          "cache-control": "max-age=43200",
+          "pragma": "no-cache",
+          "expires": "-1",
+          "x-content-type-options": "nosniff",
+          "etag": "W/\"124-yiKdLzqO5gfBrJFrcdJ8Yq0LGnU\"",
+          "via": "1.1 vegur",
+          "age": "6611",
+          "cf-cache-status": "HIT",
+          "cf-ray": "94e293007a60ddad-DFW",
+          "alt-svc": "h3=\":443\"; ma=86400"
+        }
+      },
+      "description": "Validate that GET /posts/1 returns a post with id = 1",
+      "expected": 1,
+      "actual": 1,
+      "pass": true,
+      "type": "API"
+    }
+  ],
+  "finished": 1749660279870,
+  "runId": "712b2d53-53c0-4fe2-a461-8a0cc849809f",
+  "queued": 1749660277063
+}

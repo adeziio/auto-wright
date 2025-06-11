@@ -13,6 +13,7 @@ const testOne = async (configs) => {
         results.push({
             test: filename,
             url,
+            description: "Validating that the main heading contains 'Hi, I'm Aden.'",
             expected: "Hi, I'm Aden.",
             actual: text,
             pass: text === "Hi, I'm Aden.",
@@ -22,6 +23,7 @@ const testOne = async (configs) => {
         results.push({
             test: filename,
             url,
+            description: "Catching any unexpected error during the UI test.",
             expected: "No Error",
             actual: error.message,
             pass: false,

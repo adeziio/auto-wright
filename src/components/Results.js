@@ -246,7 +246,7 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                 primary={
                                                                                     <Typography
                                                                                         variant="body1"
-                                                                                        component="span" // Use span instead of default p
+                                                                                        component="span"
                                                                                         sx={{
                                                                                             fontWeight: 'bold',
                                                                                             color:
@@ -257,6 +257,10 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                                         : 'text.secondary',
                                                                                         }}
                                                                                     >
+                                                                                        {/* Add step number before status */}
+                                                                                        <span style={{ marginRight: 8, color: '#888', fontWeight: 400 }}>
+                                                                                            Step {idx + 1}.
+                                                                                        </span>
                                                                                         {result.pass === true
                                                                                             ? '✅ Pass'
                                                                                             : result.pass === false
@@ -266,6 +270,11 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                 }
                                                                                 secondary={
                                                                                     <span>
+                                                                                        {result.description && (
+                                                                                            <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block', color: 'text.secondary' }}>
+                                                                                                <strong>Description:</strong> {result.description}
+                                                                                            </Typography>
+                                                                                        )}
                                                                                         {result.expected !== undefined && (
                                                                                             <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
                                                                                                 <strong>Expected:</strong> <span style={{ fontFamily: 'monospace' }}>{String(result.expected)}</span>

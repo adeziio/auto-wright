@@ -16,7 +16,7 @@
           "body": "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto"
         },
         "headers": {
-          "date": "Tue, 10 Jun 2025 21:00:37 GMT",
+          "date": "Wed, 11 Jun 2025 16:44:33 GMT",
           "content-type": "application/json; charset=utf-8",
           "transfer-encoding": "chunked",
           "connection": "keep-alive",
@@ -36,19 +36,20 @@
           "x-content-type-options": "nosniff",
           "etag": "W/\"124-yiKdLzqO5gfBrJFrcdJ8Yq0LGnU\"",
           "via": "1.1 vegur",
-          "age": "21995",
+          "age": "6607",
           "cf-cache-status": "HIT",
-          "cf-ray": "94dbcca0e824f0aa-DFW",
+          "cf-ray": "94e292e76dedddad-DFW",
           "alt-svc": "h3=\":443\"; ma=86400"
         }
       },
+      "description": "Validate that GET /posts/1 returns a post with id = 1",
       "expected": 1,
       "actual": 1,
       "pass": true,
       "type": "API"
     }
   ],
-  "finished": 1749589237969,
-  "runId": "e0c4cfa0-fb3b-4b09-8c0d-e2b0982e451a",
-  "queued": 1749589234471
+  "finished": 1749660275860,
+  "runId": "8340fc62-4eac-404b-8358-a52fb8a98402",
+  "queued": 1749660271469
 }

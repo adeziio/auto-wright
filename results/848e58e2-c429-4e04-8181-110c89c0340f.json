@@ -3,6 +3,7 @@
     {
       "test": "testTwo",
       "url": "https://adentran.vercel.app/",
+      "description": "Validating that the paragraph contains 'Computer Science'.",
       "expected": "Contains 'Computer Science'",
       "actual": "Contains 'Computer Science'",
       "pass": true,
@@ -11,6 +12,7 @@
     {
       "test": "testTwo",
       "url": "https://adentran.vercel.app/",
+      "description": "Validating that the paragraph contains 'Vietnam'.",
       "expected": "Contains 'Vietnam'",
       "actual": "Contains 'Vietnam'",
       "pass": true,
@@ -19,6 +21,7 @@
     {
       "test": "testTwo",
       "url": "https://adentran.vercel.app/",
+      "description": "Validating that the paragraph contains 'George Mason University'.",
       "expected": "Contains 'George Mason University'",
       "actual": "Contains 'George Mason University'",
       "pass": true,
@@ -27,13 +30,14 @@
     {
       "test": "testTwo",
       "url": "https://adentran.vercel.app/",
+      "description": "This step is expected to fail for demonstration purposes.",
       "expected": "I am expected to fail and display an error",
       "actual": "error",
       "pass": false,
       "type": "UI"
     }
   ],
-  "finished": 1749589237001,
-  "runId": "fee518b4-d062-494c-beb5-645abc6c432f",
-  "queued": 1749589232445
+  "finished": 1749660345496,
+  "runId": "e52f02e0-f3ea-4ac1-b3c8-3b1f84aa4fac",
+  "queued": 1749660339697
 }
