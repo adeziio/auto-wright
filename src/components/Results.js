@@ -61,6 +61,7 @@ export default function Results({ groupedResultsByTimestamp }) {
                 Results Log
             </Typography>
             {sortedResults.map(({ timestamp, queued, results, status }, index) => {
+                const runNumber = sortedResults.length - index; // 1-based, newest is highest
                 const hasFailedTest = results.some((result) => result.pass === false);
                 const isPending = status === 'pending' || results.some(r => r.status === 'pending');
 
@@ -119,7 +120,7 @@ export default function Results({ groupedResultsByTimestamp }) {
                             }}
                         >
                             <Typography variant="h6" sx={{ fontWeight: 'bold', flexGrow: 1, color: 'text.primary' }}>
-                                Test Run:
+                                Test Run #{runNumber}:
                                 <span style={{ fontWeight: 400, marginLeft: 8 }}>
                                     Queued: {queued ? new Date(queued).toLocaleString() : 'N/A'}
                                     {timestamp && queued && timestamp !== queued && (
