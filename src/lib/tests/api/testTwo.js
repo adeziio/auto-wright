@@ -2,14 +2,19 @@ import axios from 'axios';
 
 export default async function testTwo() {
     const results = [];
-    const filename = 'testTwo'; // No .js extension
+    const filename = 'testTwo';
+
+    const start = Date.now();
 
     // First test: /posts/2
     const url2 = 'https://jsonplaceholder.typicode.com/posts/2';
     const request2 = { method: 'GET', url: url2 };
 
     try {
+        const stepStart = start;
         const response2 = await axios.get(url2);
+        const stepEnd = Date.now();
+        const duration = stepEnd - stepStart;
 
         results.push({
             test: filename,
@@ -25,8 +30,11 @@ export default async function testTwo() {
             actual: response2.data.id,
             pass: response2.data.id === 2,
             type: 'API',
+            duration,
         });
     } catch (err) {
+        const stepEnd = Date.now();
+        const duration = stepEnd - start;
         results.push({
             test: filename,
             url: url2,
@@ -43,6 +51,7 @@ export default async function testTwo() {
             actual: err.message,
             pass: false,
             type: 'API',
+            duration,
         });
     }
 
@@ -51,7 +60,10 @@ export default async function testTwo() {
     const request3 = { method: 'GET', url: url3 };
 
     try {
+        const stepStart = Date.now();
         const response3 = await axios.get(url3);
+        const stepEnd = Date.now();
+        const duration = stepEnd - stepStart;
 
         results.push({
             test: filename,
@@ -67,8 +79,11 @@ export default async function testTwo() {
             actual: response3.data.id,
             pass: response3.data.id === 3,
             type: 'API',
+            duration,
         });
     } catch (err) {
+        const stepEnd = Date.now();
+        const duration = stepEnd - start;
         results.push({
             test: filename,
             url: url3,
@@ -85,6 +100,7 @@ export default async function testTwo() {
             actual: err.message,
             pass: false,
             type: 'API',
+            duration,
         });
     }
 

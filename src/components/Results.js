@@ -8,7 +8,8 @@ import { exportResultsAsDocx, exportResultsAsPdf } from './ResultsExport';
 import ScreenshotModal from '../components/ScreenshotModal';
 
 function formatDuration(ms) {
-    if (!ms || ms < 0) return 'N/A';
+    if (typeof ms !== 'number' || isNaN(ms) || ms < 0) return 'N/A';
+    if (ms < 1000) return '0s';
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -121,20 +122,35 @@ export default function Results({ groupedFilteredResults }) {
                                 justifyContent: 'space-between',
                             }}
                         >
-                            <Typography variant="h6" sx={{ fontWeight: 'bold', flexGrow: 1, color: 'text.primary' }}>
-                                Test Run #{runNumber}:
-                                <span style={{ fontWeight: 400, marginLeft: 8 }}>
-                                    {queued ? new Date(queued).toLocaleString() : 'N/A'}
-                                    {finished && queued && finished !== queued && (
-                                        <>
-                                            &rarr; {new Date(finished).toLocaleString()}
-                                            <span style={{ marginLeft: 12, color: '#888', fontWeight: 400 }}>
-                                                ({formatDuration(finished - queued)})
-                                            </span>
-                                        </>
-                                    )}
-                                </span>
-                            </Typography>
+                            <span style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+                                    Test Run #{runNumber}:
+                                    <span style={{ fontWeight: 400, marginLeft: 8 }}>
+                                        {queued ? new Date(queued).toLocaleString() : 'N/A'}
+                                        {finished && queued && finished !== queued && (
+                                            <>
+                                                &rarr; {new Date(finished).toLocaleString()}
+                                            </>
+                                        )}
+                                    </span>
+                                </Typography>
+                                {/* Duration to the far right, left of status icons, same size as step durations */}
+                                {finished && queued && finished !== queued && (
+                                    <Typography
+                                        variant="body1"
+                                        component="span"
+                                        sx={{
+                                            marginLeft: 'auto',
+                                            marginRight: 2,
+                                            color: '#888',
+                                            fontWeight: 400,
+                                            fontSize: '1rem', // match step duration size
+                                        }}
+                                    >
+                                        ({formatDuration(finished - queued)})
+                                    </Typography>
+                                )}
+                            </span>
                             {isPending && (
                                 <Typography
                                     variant="body2"
@@ -165,6 +181,23 @@ export default function Results({ groupedFilteredResults }) {
                                 ).map(([type, typeResults], typeIndex) => {
                                     const hasFailedType = typeResults.some((result) => result.pass === false);
 
+                                    // For each test file, sum durations of its inner results
+                                    const testFileDurations = Object.values(
+                                        typeResults.reduce((acc, result) => {
+                                            acc[result.test] = acc[result.test] || [];
+                                            acc[result.test].push(result);
+                                            return acc;
+                                        }, {})
+                                    ).map(testResults =>
+                                        testResults.reduce(
+                                            (sum, r) => sum + (typeof r.duration === 'number' ? r.duration : 0),
+                                            0
+                                        )
+                                    );
+
+                                    // The duration for the UI/API group is the max of the test file sums
+                                    const typeDuration = Math.max(...testFileDurations, 0);
+
                                     return (
                                         <Accordion
                                             key={typeIndex}
@@ -191,9 +224,24 @@ export default function Results({ groupedFilteredResults }) {
                                                     color: 'text.primary',
                                                 }}
                                             >
-                                                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                                    {type === 'UI' ? 'UI Tests' : 'API Tests'}
-                                                </Typography>
+                                                <span style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                                        {type === 'UI' ? 'UI Tests' : 'API Tests'}
+                                                    </Typography>
+                                                    <Typography
+                                                        variant="body1"
+                                                        component="span"
+                                                        sx={{
+                                                            marginLeft: 'auto',
+                                                            marginRight: 2,
+                                                            color: '#888',
+                                                            fontWeight: 400,
+                                                            fontSize: '1rem',
+                                                        }}
+                                                    >
+                                                        ({formatDuration(typeDuration)})
+                                                    </Typography>
+                                                </span>
                                             </AccordionSummary>
                                             <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
                                                 {Object.entries(
@@ -204,6 +252,12 @@ export default function Results({ groupedFilteredResults }) {
                                                     }, {})
                                                 ).map(([testName, testResults], testIndex) => {
                                                     const hasFailedTest = testResults.some((result) => result.pass === false);
+
+                                                    // For individual test file, duration is the sum of inner results' durations
+                                                    const testDuration = testResults.reduce(
+                                                        (sum, r) => sum + (typeof r.duration === 'number' ? r.duration : 0),
+                                                        0
+                                                    );
 
                                                     return (
                                                         <Accordion
@@ -236,9 +290,24 @@ export default function Results({ groupedFilteredResults }) {
                                                                     color: 'text.primary',
                                                                 }}
                                                             >
-                                                                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                                                                    {testName}
-                                                                </Typography>
+                                                                <span style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                                                                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                                                                        {testName}
+                                                                    </Typography>
+                                                                    <Typography
+                                                                        variant="body1"
+                                                                        component="span"
+                                                                        sx={{
+                                                                            marginLeft: 'auto',
+                                                                            marginRight: 2,
+                                                                            color: '#888',
+                                                                            fontWeight: 400,
+                                                                            fontSize: '1rem',
+                                                                        }}
+                                                                    >
+                                                                        ({formatDuration(testDuration)})
+                                                                    </Typography>
+                                                                </span>
                                                             </AccordionSummary>
                                                             <AccordionDetails sx={{ backgroundColor: 'background.paper' }}>
                                                                 <List>
@@ -246,28 +315,35 @@ export default function Results({ groupedFilteredResults }) {
                                                                         <ListItem key={idx} divider sx={{ alignItems: 'flex-start' }}>
                                                                             <ListItemText
                                                                                 primary={
-                                                                                    <Typography
-                                                                                        variant="body1"
-                                                                                        component="span"
-                                                                                        sx={{
-                                                                                            fontWeight: 'bold',
-                                                                                            color:
-                                                                                                result.pass === true
-                                                                                                    ? 'success.main'
-                                                                                                    : result.pass === false
-                                                                                                        ? 'error.main'
-                                                                                                        : 'text.secondary',
-                                                                                        }}
-                                                                                    >
-                                                                                        <span style={{ marginRight: 8, color: '#888', fontWeight: 400 }}>
-                                                                                            Step {idx + 1}.
+                                                                                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                                                        <Typography
+                                                                                            variant="body1"
+                                                                                            component="span"
+                                                                                            sx={{
+                                                                                                fontWeight: 'bold',
+                                                                                                color:
+                                                                                                    result.pass === true
+                                                                                                        ? 'success.main'
+                                                                                                        : result.pass === false
+                                                                                                            ? 'error.main'
+                                                                                                            : 'text.secondary',
+                                                                                            }}
+                                                                                        >
+                                                                                            <span style={{ marginRight: 8, color: '#888', fontWeight: 400 }}>
+                                                                                                Step {idx + 1}.
+                                                                                            </span>
+                                                                                            {result.pass === true
+                                                                                                ? '✅ Pass'
+                                                                                                : result.pass === false
+                                                                                                    ? '❌ Fail'
+                                                                                                    : '⏳ Pending'}
+                                                                                        </Typography>
+                                                                                        <span style={{ marginLeft: 'auto', color: '#888', fontWeight: 400 }}>
+                                                                                            {result.duration !== undefined && (
+                                                                                                <>({formatDuration(result.duration)})</>
+                                                                                            )}
                                                                                         </span>
-                                                                                        {result.pass === true
-                                                                                            ? '✅ Pass'
-                                                                                            : result.pass === false
-                                                                                                ? '❌ Fail'
-                                                                                                : '⏳ Pending'}
-                                                                                    </Typography>
+                                                                                    </span>
                                                                                 }
                                                                                 secondary={
                                                                                     <span>
@@ -276,15 +352,6 @@ export default function Results({ groupedFilteredResults }) {
                                                                                                 <strong>Description:</strong> {result.description}
                                                                                             </Typography>
                                                                                         )}
-                                                                                        {/* Timelapse for individual step */}
-                                                                                        <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
-                                                                                            <strong>Timelapse:</strong>{" "}
-                                                                                            {result.timelapse !== undefined
-                                                                                                ? formatDuration(result.timelapse)
-                                                                                                : finished && queued
-                                                                                                    ? formatDuration(finished - queued)
-                                                                                                    : "N/A"}
-                                                                                        </Typography>
                                                                                         {result.expected !== undefined && (
                                                                                             <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
                                                                                                 <strong>Expected:</strong> <span style={{ fontFamily: 'monospace' }}>{String(result.expected)}</span>

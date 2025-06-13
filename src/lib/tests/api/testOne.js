@@ -2,12 +2,16 @@ import axios from 'axios';
 
 export default async function testOne() {
     const results = [];
-    const filename = 'testOne'; // No .js extension
+    const filename = 'testOne';
     const url = 'https://jsonplaceholder.typicode.com/posts/1';
     const request = { method: 'GET', url };
 
+    const start = Date.now();
     try {
+        const stepStart = start;
         const response = await axios.get(url);
+        const stepEnd = Date.now();
+        const duration = stepEnd - stepStart;
 
         results.push({
             test: filename,
@@ -23,8 +27,11 @@ export default async function testOne() {
             actual: response.data.id,
             pass: response.data.id === 1,
             type: 'API',
+            duration,
         });
     } catch (err) {
+        const stepEnd = Date.now();
+        const duration = stepEnd - start;
         results.push({
             test: filename,
             url,
@@ -41,6 +48,7 @@ export default async function testOne() {
             actual: err.message,
             pass: false,
             type: 'API',
+            duration,
         });
     }
     return results;

@@ -1,6 +1,7 @@
 import { chromium } from 'playwright';
 
 const testOne = async (configs) => {
+    const start = Date.now();
     const browser = await chromium.launch(configs);
     const page = await browser.newPage();
     const results = [];
@@ -13,6 +14,7 @@ const testOne = async (configs) => {
     try {
         await page.goto(url);
         await page.waitForTimeout(3000);
+        const now = Date.now();
         const actual = await page.textContent(selector);
         const pass = actual === expected;
         let screenshotBase64;
@@ -20,6 +22,7 @@ const testOne = async (configs) => {
             const buffer = await page.screenshot();
             screenshotBase64 = buffer.toString('base64');
         }
+        const duration = now - start;
         results.push({
             test: filename,
             url,
@@ -28,11 +31,14 @@ const testOne = async (configs) => {
             actual,
             pass,
             type: "UI",
+            duration,
             ...(screenshotBase64 && { screenshotBase64 }),
         });
     } catch (error) {
+        const now = Date.now();
         const buffer = await page.screenshot();
         const screenshotBase64 = buffer.toString('base64');
+        const duration = now - start;
         results.push({
             test: filename,
             url,
@@ -41,6 +47,7 @@ const testOne = async (configs) => {
             actual: error.message,
             pass: false,
             type: "UI",
+            duration,
             screenshotBase64,
         });
     } finally {
