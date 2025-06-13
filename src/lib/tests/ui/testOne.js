@@ -12,7 +12,7 @@ const testOne = async (configs) => {
     const description = `Validating that the main heading contains '${expected}'`;
 
     try {
-        await page.goto(url);
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
         await page.waitForTimeout(3000);
         const now = Date.now();
         const actual = await page.textContent(selector);

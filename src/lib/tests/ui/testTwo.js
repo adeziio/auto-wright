@@ -16,7 +16,7 @@ const testTwo = async (configs) => {
     const url = 'https://adentran.vercel.app/';
 
     try {
-        await page.goto(url);
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 10000 });
         await page.evaluate(() => window.scrollBy(0, 1850));
         await page.waitForTimeout(2000);
 

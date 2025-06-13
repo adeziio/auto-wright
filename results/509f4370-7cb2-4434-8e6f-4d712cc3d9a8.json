@@ -16,7 +16,7 @@
           "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla"
         },
         "headers": {
-          "date": "Fri, 13 Jun 2025 19:59:29 GMT",
+          "date": "Fri, 13 Jun 2025 21:10:56 GMT",
           "content-type": "application/json; charset=utf-8",
           "transfer-encoding": "chunked",
           "connection": "keep-alive",
@@ -36,9 +36,9 @@
           "x-ratelimit-limit": "1000",
           "x-ratelimit-remaining": "999",
           "x-ratelimit-reset": "1749675447",
-          "age": "1573",
+          "age": "5860",
           "cf-cache-status": "HIT",
-          "cf-ray": "94f42b337fb2f074-DFW",
+          "cf-ray": "94f493d83e0b6bad-DFW",
           "alt-svc": "h3=\":443\"; ma=86400"
         }
       },
@@ -47,7 +47,7 @@
       "actual": 2,
       "pass": true,
       "type": "API",
-      "duration": 28
+      "duration": 13
     },
     {
       "test": "testTwo",
@@ -65,7 +65,7 @@
           "body": "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut"
         },
         "headers": {
-          "date": "Fri, 13 Jun 2025 19:59:29 GMT",
+          "date": "Fri, 13 Jun 2025 21:10:56 GMT",
           "content-type": "application/json; charset=utf-8",
           "transfer-encoding": "chunked",
           "connection": "keep-alive",
@@ -85,9 +85,9 @@
           "x-ratelimit-limit": "1000",
           "x-ratelimit-remaining": "999",
           "x-ratelimit-reset": "1749543972",
-          "age": "28618",
+          "age": "3959",
           "cf-cache-status": "HIT",
-          "cf-ray": "94f42b33a83bf074-DFW",
+          "cf-ray": "94f493d84e4b6bad-DFW",
           "alt-svc": "h3=\":443\"; ma=86400"
         }
       },
@@ -96,10 +96,10 @@
       "actual": 3,
       "pass": true,
       "type": "API",
-      "duration": 21
+      "duration": 18
     }
   ],
-  "finished": 1749844769980,
-  "runId": "4d674866-60a0-4d02-83f7-48268de16307",
-  "queued": 1749844766989
+  "finished": 1749849056234,
+  "runId": "a72b6a72-c257-4942-8e06-80d060269621",
+  "queued": 1749849052624
 }

@@ -16,7 +16,7 @@
           "body": "est rerum tempore vitae\nsequi sint nihil reprehenderit dolor beatae ea dolores neque\nfugiat blanditiis voluptate porro vel nihil molestiae ut reiciendis\nqui aperiam non debitis possimus qui neque nisi nulla"
         },
         "headers": {
-          "date": "Fri, 13 Jun 2025 20:04:56 GMT",
+          "date": "Fri, 13 Jun 2025 21:10:48 GMT",
           "content-type": "application/json; charset=utf-8",
           "transfer-encoding": "chunked",
           "connection": "keep-alive",
@@ -36,9 +36,9 @@
           "x-ratelimit-limit": "1000",
           "x-ratelimit-remaining": "999",
           "x-ratelimit-reset": "1749675447",
-          "age": "1900",
+          "age": "5852",
           "cf-cache-status": "HIT",
-          "cf-ray": "94f4332e7ad36b9d-DFW",
+          "cf-ray": "94f493a6181bf07c-DFW",
           "alt-svc": "h3=\":443\"; ma=86400"
         }
       },
@@ -47,7 +47,7 @@
       "actual": 2,
       "pass": true,
       "type": "API",
-      "duration": 20
+      "duration": 24
     },
     {
       "test": "testTwo",
@@ -65,7 +65,7 @@
           "body": "et iusto sed quo iure\nvoluptatem occaecati omnis eligendi aut ad\nvoluptatem doloribus vel accusantium quis pariatur\nmolestiae porro eius odio et labore et velit aut"
         },
         "headers": {
-          "date": "Fri, 13 Jun 2025 20:04:56 GMT",
+          "date": "Fri, 13 Jun 2025 21:10:48 GMT",
           "content-type": "application/json; charset=utf-8",
           "transfer-encoding": "chunked",
           "connection": "keep-alive",
@@ -85,8 +85,9 @@
           "x-ratelimit-limit": "1000",
           "x-ratelimit-remaining": "999",
           "x-ratelimit-reset": "1749543972",
-          "cf-cache-status": "REVALIDATED",
-          "cf-ray": "94f4332e9b026b9d-DFW",
+          "age": "3951",
+          "cf-cache-status": "HIT",
+          "cf-ray": "94f493a638a0f07c-DFW",
           "alt-svc": "h3=\":443\"; ma=86400"
         }
       },
@@ -95,10 +96,10 @@
       "actual": 3,
       "pass": true,
       "type": "API",
-      "duration": 124
+      "duration": 19
     }
   ],
-  "finished": 1749845096955,
-  "runId": "84fd440b-80f9-46dc-8472-b00db1d1650b",
-  "queued": 1749845094480
+  "finished": 1749849048226,
+  "runId": "4f45e887-f97f-41c7-a8e5-05846708bc92",
+  "queued": 1749849045738
 }
