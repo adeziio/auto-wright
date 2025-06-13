@@ -1,59 +1,47 @@
 import { chromium } from 'playwright';
 
+const keywords = [
+    'Computer Science',
+    'Vietnam',
+    'George Mason University',
+    'Sky High',
+];
+
 const testTwo = async (configs) => {
     const browser = await chromium.launch(configs);
     const page = await browser.newPage();
     const results = [];
-    const filename = 'testTwo'; // No .js extension
+    const filename = 'testTwo';
     const url = 'https://adentran.vercel.app/';
+
     try {
         await page.goto(url);
+        await page.evaluate(() => window.scrollBy(0, 1850));
+        await page.waitForTimeout(2000);
 
         const aboutMeContent = await page.textContent('//*[@id="about"]/div/div[2]/div[2]');
-        const majorCheck = aboutMeContent.includes('Computer Science');
-        const countryCheck = aboutMeContent.includes('Vietnam');
-        const schoolCheck = aboutMeContent.includes('George Mason University');
 
-        results.push({
-            test: filename,
-            url,
-            description: "Validating that the paragraph contains 'Computer Science'.",
-            expected: "Contains 'Computer Science'",
-            actual: majorCheck ? "Contains 'Computer Science'" : "Does not contain 'Computer Science'",
-            pass: majorCheck,
-            type: "UI",
-        });
-
-        results.push({
-            test: filename,
-            url,
-            description: "Validating that the paragraph contains 'Vietnam'.",
-            expected: "Contains 'Vietnam'",
-            actual: countryCheck ? "Contains 'Vietnam'" : "Does not contain 'Vietnam'",
-            pass: countryCheck,
-            type: "UI",
-        });
-
-        results.push({
-            test: filename,
-            url,
-            description: "Validating that the paragraph contains 'George Mason University'.",
-            expected: "Contains 'George Mason University'",
-            actual: schoolCheck ? "Contains 'George Mason University'" : "Does not contain 'George Mason University'",
-            pass: schoolCheck,
-            type: "UI",
-        });
-
-        results.push({
-            test: filename,
-            url,
-            description: "This step is expected to fail for demonstration purposes.",
-            expected: "I am expected to fail and display an error",
-            actual: "error",
-            pass: false,
-            type: "UI",
-        });
+        for (const keyword of keywords) {
+            const pass = aboutMeContent.includes(keyword);
+            let screenshotBase64;
+            if (!pass) {
+                const buffer = await page.screenshot();
+                screenshotBase64 = buffer.toString('base64');
+            }
+            results.push({
+                test: filename,
+                url,
+                description: `Validating that the paragraph contains '${keyword}'.`,
+                expected: `Contains '${keyword}'`,
+                actual: pass ? `Contains '${keyword}'` : `Does not contain '${keyword}'`,
+                pass,
+                type: "UI",
+                ...(screenshotBase64 && { screenshotBase64 }),
+            });
+        }
     } catch (error) {
+        const buffer = await page.screenshot();
+        const screenshotBase64 = buffer.toString('base64');
         results.push({
             test: filename,
             url,
@@ -62,6 +50,7 @@ const testTwo = async (configs) => {
             actual: error.message,
             pass: false,
             type: "UI",
+            screenshotBase64,
         });
     } finally {
         await page.close();

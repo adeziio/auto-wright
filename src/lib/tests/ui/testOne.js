@@ -4,22 +4,35 @@ const testOne = async (configs) => {
     const browser = await chromium.launch(configs);
     const page = await browser.newPage();
     const results = [];
-    const filename = 'testOne'; // No .js extension
+    const filename = 'testOne';
     const url = 'https://adentran.vercel.app/';
+    const selector = '//*[@id="root"]/main/div[3]/div[1]/div[1]/div/h1';
+    const expected = "Hi, I'm Aden.";
+    const description = `Validating that the main heading contains '${expected}'`;
+
     try {
         await page.goto(url);
-        await page.waitForTimeout(3000); // Wait for 3 seconds after page load
-        const text = await page.textContent('//*[@id="root"]/main/div[3]/div[1]/div[1]/div/h1');
+        await page.waitForTimeout(3000);
+        const actual = await page.textContent(selector);
+        const pass = actual === expected;
+        let screenshotBase64;
+        if (!pass) {
+            const buffer = await page.screenshot();
+            screenshotBase64 = buffer.toString('base64');
+        }
         results.push({
             test: filename,
             url,
-            description: "Validating that the main heading contains 'Hi, I'm Aden.'",
-            expected: "Hi, I'm Aden.",
-            actual: text,
-            pass: text === "Hi, I'm Aden.",
+            description,
+            expected,
+            actual,
+            pass,
             type: "UI",
+            ...(screenshotBase64 && { screenshotBase64 }),
         });
     } catch (error) {
+        const buffer = await page.screenshot();
+        const screenshotBase64 = buffer.toString('base64');
         results.push({
             test: filename,
             url,
@@ -28,6 +41,7 @@ const testOne = async (configs) => {
             actual: error.message,
             pass: false,
             type: "UI",
+            screenshotBase64,
         });
     } finally {
         await page.close();

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import {
     Accordion, AccordionSummary, AccordionDetails, Typography, List, ListItem, ListItemText,
-    Menu, MenuItem, useTheme
+    Menu, MenuItem, useTheme, Modal, Box, IconButton
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import { exportResultsAsDocx, exportResultsAsPdf } from './ResultsExport';
+import ScreenshotModal from '../components/ScreenshotModal';
 
 function formatDuration(ms) {
     if (!ms || ms < 0) return 'N/A';
@@ -310,6 +311,7 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                                 )}
                                                                                             </span>
                                                                                         )}
+                                                                                        {result.screenshotBase64 && <ScreenshotModal screenshotBase64={result.screenshotBase64} />}
                                                                                     </span>
                                                                                 }
                                                                             />
