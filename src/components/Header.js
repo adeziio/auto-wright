@@ -18,10 +18,10 @@ export default function Header({ filterType, setFilterType, filterStatus, setFil
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isProduction = process.env.NODE_ENV === 'production';
 
-  const handleRunTests = ({ timestamp, results }) => {
+  const handleRunTests = ({ results }) => {
     setResults((prevResults) => [
       ...prevResults,
-      { timestamp, results },
+      { results },
     ]);
   };
 

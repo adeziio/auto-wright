@@ -1,22 +1,35 @@
 import { Document, Packer, Paragraph, TextRun } from 'docx';
 import jsPDF from 'jspdf';
 
-/**
- * Exports the test results as a .docx file.
- * @param {string} timestamp - The timestamp of the test run.
- * @param {Array} results - The array of test results.
- */
-export const exportResultsAsDocx = (timestamp, results) => {
+// Helper to format ms to h/m/s
+function formatDuration(ms) {
+    if (!ms || ms < 0) return 'N/A';
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return [
+        hours > 0 ? `${hours}h` : null,
+        minutes > 0 ? `${minutes}m` : null,
+        `${seconds}s`
+    ].filter(Boolean).join(' ');
+}
+
+export const exportResultsAsDocx = (finished, queued, results) => {
     const groupedByType = results.reduce((acc, result) => {
         acc[result.type] = acc[result.type] || [];
         acc[result.type].push(result);
         return acc;
     }, {});
 
+    const duration = finished && queued ? formatDuration(finished - queued) : 'N/A';
+    const queuedStr = queued ? new Date(queued).toLocaleString() : 'N/A';
+    const finishedStr = finished ? new Date(finished).toLocaleString() : 'N/A';
+
     const title = new Paragraph({
         children: [
             new TextRun({
-                text: `Test Run: ${new Date(timestamp).toLocaleString()}`,
+                text: `Test Run: ${queuedStr} -> ${finishedStr} (${duration})`,
                 bold: true,
                 size: 28,
             }),
@@ -41,13 +54,12 @@ export const exportResultsAsDocx = (timestamp, results) => {
         let stepCounter = 1;
 
         typeResults.forEach((result, idx) => {
-            // Only add the test name if it's different from the previous one
             if (result.test !== lastTestName) {
                 resultParagraphs.push(
                     new Paragraph({
                         children: [
                             new TextRun({
-                                text: `Test: ${result.test}`,
+                                text: result.test,
                                 bold: true,
                                 size: 24,
                             }),
@@ -56,7 +68,7 @@ export const exportResultsAsDocx = (timestamp, results) => {
                     })
                 );
                 lastTestName = result.test;
-                stepCounter = 1; // Reset step number for each new test
+                stepCounter = 1;
             }
 
             const stepNumber = new Paragraph({
@@ -87,6 +99,17 @@ export const exportResultsAsDocx = (timestamp, results) => {
                     ],
                 })
                 : null;
+
+            const durationPara = new Paragraph({
+                children: [
+                    new TextRun({ text: 'Duration: ', bold: true }),
+                    new TextRun(
+                        result.duration !== undefined
+                            ? formatDuration(result.duration)
+                            : duration
+                    ),
+                ],
+            });
 
             const expected = new Paragraph({
                 children: [
@@ -133,6 +156,7 @@ export const exportResultsAsDocx = (timestamp, results) => {
                 stepNumber,
                 status,
                 ...(description ? [description] : []),
+                durationPara,
                 expected,
                 actual,
                 ...(url ? [url] : []),
@@ -160,28 +184,27 @@ export const exportResultsAsDocx = (timestamp, results) => {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `test-run-${new Date(timestamp).toISOString()}.docx`;
+        link.download = `test-run-${finished ? new Date(finished).toISOString() : 'unknown'}.docx`;
         link.click();
         URL.revokeObjectURL(url);
     });
 };
 
-/**
- * Exports the test results as a .pdf file.
- * @param {string} timestamp - The timestamp of the test run.
- * @param {Array} results - The array of test results.
- */
-export const exportResultsAsPdf = (timestamp, results) => {
+export const exportResultsAsPdf = (finished, queued, results) => {
     const doc = new jsPDF();
     const marginLeft = 10;
     let y = 20;
 
-    // Title
-    const title = `Test Run: ${new Date(timestamp).toLocaleString()}`;
+    const duration = finished && queued ? formatDuration(finished - queued) : 'N/A';
+    const queuedStr = queued ? new Date(queued).toLocaleString() : 'N/A';
+    const finishedStr = finished ? new Date(finished).toLocaleString() : 'N/A';
+
+    // Title line with queued, finished, and duration
+    const title = `Test Run: ${queuedStr} -> ${finishedStr} (${duration})`;
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text(title, marginLeft, y);
-    y += 10;
+    y += 12;
 
     // Group results by type (e.g., UI, API)
     const groupedByType = results.reduce((acc, result) => {
@@ -191,7 +214,6 @@ export const exportResultsAsPdf = (timestamp, results) => {
     }, {});
 
     Object.entries(groupedByType).forEach(([type, typeResults]) => {
-        // Type header
         doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
         doc.text(type === 'UI' ? 'UI Tests' : 'API Tests', marginLeft, y);
@@ -201,23 +223,20 @@ export const exportResultsAsPdf = (timestamp, results) => {
         let stepCounter = 1;
 
         typeResults.forEach((result, idx) => {
-            // Only add the test name if it's different from the previous one
             if (result.test !== lastTestName) {
                 doc.setFontSize(12);
                 doc.setFont('helvetica', 'bold');
-                doc.text(`Test: ${result.test}`, marginLeft, y);
+                doc.text(result.test, marginLeft, y);
                 y += 7;
                 lastTestName = result.test;
-                stepCounter = 1; // Reset step number for each new test
+                stepCounter = 1;
             }
 
-            // Step number
             doc.setFontSize(11);
             doc.setFont('helvetica', 'bold');
             doc.text(`Step ${stepCounter++}`, marginLeft, y);
             y += 6;
 
-            // Status
             let statusText = 'Status: Pending ⏳';
             let color = [128, 128, 128];
             if (result.pass === true) {
@@ -233,50 +252,54 @@ export const exportResultsAsPdf = (timestamp, results) => {
             doc.setTextColor(0, 0, 0);
             y += 6;
 
-            // Description
             if (result.description) {
                 doc.setFont('helvetica', 'normal');
                 doc.text(`Description: ${result.description}`, marginLeft, y);
                 y += 6;
             }
 
-            // Expected
+            doc.setFont('helvetica', 'normal');
+            doc.text(
+                `Duration: ${result.duration !== undefined
+                    ? formatDuration(result.duration)
+                    : duration
+                }`,
+                marginLeft,
+                y
+            );
+            y += 6;
+
             doc.text(`Expected: ${result.expected !== undefined ? String(result.expected) : 'N/A'}`, marginLeft, y);
             y += 6;
 
-            // Actual
             doc.text(`Actual: ${result.actual !== undefined ? String(result.actual) : 'N/A'}`, marginLeft, y);
             y += 6;
 
-            // URL
             if (result.url) {
                 doc.text(`URL: ${result.url}`, marginLeft, y);
                 y += 6;
             }
 
-            // Request
             if (result.request) {
                 doc.text(`Request: ${JSON.stringify(result.request)}`, marginLeft, y);
                 y += 6;
             }
 
-            // Response
             if (result.response) {
                 doc.text(`Response: ${JSON.stringify(result.response)}`, marginLeft, y);
                 y += 6;
             }
 
-            y += 4; // Spacing after each step
+            y += 4;
 
-            // Page break if needed
             if (y > 280) {
                 doc.addPage();
                 y = 20;
             }
         });
 
-        y += 10; // Spacing after each type
+        y += 10;
     });
 
-    doc.save(`test-run-${new Date(timestamp).toISOString()}.pdf`);
+    doc.save(`test-run-${finished ? new Date(finished).toISOString() : 'unknown'}.pdf`);
 };

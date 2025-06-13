@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Accordion, AccordionSummary, AccordionDetails, Typography, List, ListItem, ListItemText,
-    Menu, MenuItem, useTheme, Modal, Box, IconButton
+    Menu, MenuItem, useTheme
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import { exportResultsAsDocx, exportResultsAsPdf } from './ResultsExport';
@@ -20,7 +20,7 @@ function formatDuration(ms) {
     ].filter(Boolean).join(' ');
 }
 
-export default function Results({ groupedResultsByTimestamp }) {
+export default function Results({ groupedFilteredResults }) {
     const theme = useTheme();
     const [anchorEl, setAnchorEl] = useState(null);
     const [currentExportData, setCurrentExportData] = useState(null);
@@ -30,26 +30,27 @@ export default function Results({ groupedResultsByTimestamp }) {
         setCurrentExportData(null);
     };
 
-    const handleMenuOpen = (event, timestamp, results) => {
+    // Now pass both finished and queued to export
+    const handleMenuOpen = (event, finished, queued, results) => {
         event.stopPropagation();
         setAnchorEl(event.currentTarget);
-        setCurrentExportData({ timestamp, results });
+        setCurrentExportData({ finished, queued, results });
     };
 
-    if (!groupedResultsByTimestamp || groupedResultsByTimestamp.length === 0) {
+    if (!groupedFilteredResults || groupedFilteredResults.length === 0) {
         return null;
     }
 
     // Filter out runs with no results (empty after filtering)
     // Sort by queued time (newest first, oldest last)
-    const sortedResults = [...groupedResultsByTimestamp]
+    const sortedResults = [...groupedFilteredResults]
         .filter(run => Array.isArray(run.results) && run.results.length > 0)
         .sort((a, b) => {
-            // If either queued is missing, fallback to timestamp
+            // If either queued is missing, fallback to finished
             if (a.queued && b.queued) {
                 return new Date(b.queued) - new Date(a.queued);
             }
-            return new Date(b.timestamp) - new Date(a.timestamp);
+            return new Date(b.finished) - new Date(a.finished);
         });
 
     if (sortedResults.length === 0) {
@@ -61,7 +62,7 @@ export default function Results({ groupedResultsByTimestamp }) {
             <Typography variant="h5" sx={{ mb: 4, textAlign: 'center', color: 'text.primary' }}>
                 Results Log
             </Typography>
-            {sortedResults.map(({ timestamp, queued, results, status }, index) => {
+            {sortedResults.map(({ finished, queued, results, status }, index) => {
                 const runNumber = sortedResults.length - index; // 1-based, newest is highest
                 const hasFailedTest = results.some((result) => result.pass === false);
                 const isPending = status === 'pending' || results.some(r => r.status === 'pending');
@@ -92,7 +93,7 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                 fontSize: 24,
                                                 verticalAlign: 'middle',
                                             }}
-                                            onClick={(e) => handleMenuOpen(e, timestamp, results)}
+                                            onClick={(e) => handleMenuOpen(e, finished, queued, results)}
                                             aria-label="Export Results"
                                         />
                                     )}
@@ -123,12 +124,12 @@ export default function Results({ groupedResultsByTimestamp }) {
                             <Typography variant="h6" sx={{ fontWeight: 'bold', flexGrow: 1, color: 'text.primary' }}>
                                 Test Run #{runNumber}:
                                 <span style={{ fontWeight: 400, marginLeft: 8 }}>
-                                    Queued: {queued ? new Date(queued).toLocaleString() : 'N/A'}
-                                    {timestamp && queued && timestamp !== queued && (
+                                    {queued ? new Date(queued).toLocaleString() : 'N/A'}
+                                    {finished && queued && finished !== queued && (
                                         <>
-                                            &rarr; Finished: {new Date(timestamp).toLocaleString()}
+                                            &rarr; {new Date(finished).toLocaleString()}
                                             <span style={{ marginLeft: 12, color: '#888', fontWeight: 400 }}>
-                                                ({formatDuration(timestamp - queued)})
+                                                ({formatDuration(finished - queued)})
                                             </span>
                                         </>
                                     )}
@@ -258,7 +259,6 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                                         : 'text.secondary',
                                                                                         }}
                                                                                     >
-                                                                                        {/* Add step number before status */}
                                                                                         <span style={{ marginRight: 8, color: '#888', fontWeight: 400 }}>
                                                                                             Step {idx + 1}.
                                                                                         </span>
@@ -276,6 +276,15 @@ export default function Results({ groupedResultsByTimestamp }) {
                                                                                                 <strong>Description:</strong> {result.description}
                                                                                             </Typography>
                                                                                         )}
+                                                                                        {/* Timelapse for individual step */}
+                                                                                        <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
+                                                                                            <strong>Timelapse:</strong>{" "}
+                                                                                            {result.timelapse !== undefined
+                                                                                                ? formatDuration(result.timelapse)
+                                                                                                : finished && queued
+                                                                                                    ? formatDuration(finished - queued)
+                                                                                                    : "N/A"}
+                                                                                        </Typography>
                                                                                         {result.expected !== undefined && (
                                                                                             <Typography variant="caption" component="span" sx={{ mb: 0.5, display: 'block' }}>
                                                                                                 <strong>Expected:</strong> <span style={{ fontFamily: 'monospace' }}>{String(result.expected)}</span>
@@ -338,7 +347,9 @@ export default function Results({ groupedResultsByTimestamp }) {
             >
                 <MenuItem
                     onClick={() => {
-                        exportResultsAsDocx(currentExportData.timestamp, currentExportData.results);
+                        if (currentExportData) {
+                            exportResultsAsDocx(currentExportData.finished, currentExportData.queued, currentExportData.results);
+                        }
                         handleMenuClose();
                     }}
                 >
@@ -346,7 +357,9 @@ export default function Results({ groupedResultsByTimestamp }) {
                 </MenuItem>
                 <MenuItem
                     onClick={() => {
-                        exportResultsAsPdf(currentExportData.timestamp, currentExportData.results);
+                        if (currentExportData) {
+                            exportResultsAsPdf(currentExportData.finished, currentExportData.queued, currentExportData.results);
+                        }
                         handleMenuClose();
                     }}
                 >

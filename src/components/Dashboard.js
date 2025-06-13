@@ -91,7 +91,7 @@ export default function Dashboard() {
             padding: 2,
           }}
         >
-          <Results groupedResultsByTimestamp={filteredResults} />
+          <Results groupedFilteredResults={filteredResults} />
         </Box>
       </Box>
     </Box>

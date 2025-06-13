@@ -16,7 +16,7 @@ export async function GET() {
                 const parsed = JSON.parse(data);
                 allJobs.push({
                     runId: parsed.runId,
-                    timestamp: parsed.finished,
+                    finished: parsed.finished,
                     queued: parsed.queued,
                     results: parsed.results,
                     status: 'finished',
@@ -32,7 +32,7 @@ export async function GET() {
             if (job.status === 'pending' || job.status === 'processing') {
                 allJobs.push({
                     runId: job.runId,
-                    timestamp: job.created,
+                    finished: job.created,
                     queued: job.queued,
                     results: [
                         {
@@ -57,7 +57,7 @@ export async function GET() {
         if (!grouped[job.runId]) {
             grouped[job.runId] = {
                 runId: job.runId,
-                timestamp: job.timestamp,
+                finished: job.finished,
                 queued: job.queued,
                 results: [],
                 pendingCount: 0,
@@ -67,8 +67,8 @@ export async function GET() {
         grouped[job.runId].results.push(...job.results);
         if (job.status === 'pending') grouped[job.runId].pendingCount += 1;
         if (job.status === 'finished') grouped[job.runId].finishedCount += 1;
-        // Use the latest timestamp
-        if (job.timestamp > grouped[job.runId].timestamp) grouped[job.runId].timestamp = job.timestamp;
+        // Use the latest finished time
+        if (job.finished > grouped[job.runId].finished) grouped[job.runId].finished = job.finished;
         if (job.queued && (!grouped[job.runId].queued || job.queued < grouped[job.runId].queued)) {
             grouped[job.runId].queued = job.queued;
         }
@@ -83,7 +83,7 @@ export async function GET() {
             pendingCount: undefined,
             finishedCount: undefined,
         }))
-        .sort((a, b) => b.timestamp - a.timestamp);
+        .sort((a, b) => b.finished - a.finished);
 
     return NextResponse.json(all);
 }

@@ -16,8 +16,6 @@ export default function TestRunner({ onResults, onStart, headless }) {
     setAnchorEl(null);
   };
 
-  const getTimestamp = () => new Date().toISOString();
-
   // Helper to submit jobs and poll for results (for both UI and API)
   const runTestsWithQueue = async (testNames, extraBody = {}) => {
     if (!Array.isArray(testNames) || testNames.length === 0) return [];
@@ -51,10 +49,8 @@ export default function TestRunner({ onResults, onStart, headless }) {
     if (onStart) onStart();
     handleMenuClose();
     try {
-      const queued = Date.now();
-      const allResults = await runTestsWithQueue(uiTestNames, { headless, type: 'UI', queued });
-      const finished = Date.now();
-      if (onResults) onResults({ queued, timestamp: finished, results: allResults });
+      const allResults = await runTestsWithQueue(uiTestNames, { headless, type: 'UI' });
+      if (onResults) onResults({ results: allResults });
     } catch (error) {
       console.error('Error running UI tests:', error);
     }
@@ -65,10 +61,8 @@ export default function TestRunner({ onResults, onStart, headless }) {
     if (onStart) onStart();
     handleMenuClose();
     try {
-      const queued = Date.now();
-      const allResults = await runTestsWithQueue(apiTestNames, { type: 'API', queued });
-      const finished = Date.now();
-      if (onResults) onResults({ queued, timestamp: finished, results: allResults });
+      const allResults = await runTestsWithQueue(apiTestNames, { type: 'API' });
+      if (onResults) onResults({ results: allResults });
     } catch (error) {
       console.error('Error running API tests:', error);
     }
@@ -80,14 +74,10 @@ export default function TestRunner({ onResults, onStart, headless }) {
     handleMenuClose();
     try {
       const runId = uuidv4();
-      const queued = Date.now();
-
-      // Pass runId and queued to both batches
-      const uiResults = await runTestsWithQueue(uiTestNames, { headless, runId, queued, type: 'UI' });
-      const apiResults = await runTestsWithQueue(apiTestNames, { runId, queued, type: 'API' });
+      const uiResults = await runTestsWithQueue(uiTestNames, { headless, runId, type: 'UI' });
+      const apiResults = await runTestsWithQueue(apiTestNames, { runId, type: 'API' });
       const allResults = [...uiResults, ...apiResults];
-      const finished = Date.now();
-      if (onResults) onResults({ queued, timestamp: finished, results: allResults });
+      if (onResults) onResults({ results: allResults });
     } catch (error) {
       console.error('Error running all tests:', error);
     }
@@ -128,12 +118,10 @@ export default function TestRunner({ onResults, onStart, headless }) {
             key={`ui-${testName}`}
             onClick={async () => {
               handleMenuClose();
-              const queued = Date.now();
-              const allResults = await runTestsWithQueue([testName], { headless, type: 'UI', queued });
-              const finished = Date.now();
-              if (onResults) onResults({ queued, timestamp: finished, results: allResults });
+              const allResults = await runTestsWithQueue([testName], { headless, type: 'UI' });
+              if (onResults) onResults({ results: allResults });
             }}
-            sx={{ pl: 8 }} // Further indent for individual UI tests
+            sx={{ pl: 8 }}
           >
             {testName}
           </MenuItem>
@@ -149,12 +137,10 @@ export default function TestRunner({ onResults, onStart, headless }) {
             key={`api-${testName}`}
             onClick={async () => {
               handleMenuClose();
-              const queued = Date.now();
-              const allResults = await runTestsWithQueue([testName], { type: 'API', queued });
-              const finished = Date.now();
-              if (onResults) onResults({ queued, timestamp: finished, results: allResults });
+              const allResults = await runTestsWithQueue([testName], { type: 'API' });
+              if (onResults) onResults({ results: allResults });
             }}
-            sx={{ pl: 8 }} // Further indent for individual API tests
+            sx={{ pl: 8 }}
           >
             {testName}
           </MenuItem>
